@@ -67,4 +67,44 @@ namespace DivisionZeroExample
     }
   }
 }
-3. 
+3.  Custom Exception
++ Tạo một lớp kế thừa từ lớp Exception
+using System;
+
+namespace TempratureExample
+{
+
+  public class TempIsZeroException: Exception {
+     public TempIsZeroException(string message): base(message) {
+     }
+  }
+  
+  public class Temperature {
+   int temperature = 0; 
+   public void showTemp() 
+   {      
+      if(temperature == 0) {
+         throw (new TempIsZeroException("Zero Temperature found"));
+      } else {
+         Console.WriteLine("Temperature: {0}", temperature);
+      }
+   	}
+ }
+	
+  
+  	
+  class Program
+  {
+    static void Main(string[] args)
+    {
+    	Temperature t = new Temperature();
+    	try{
+        	t.showTemp();
+        }
+        catch(TempIsZeroException e){
+        	Console.WriteLine("TempIsZeroException: {0}", e.Message);
+        }
+          
+  	}
+}
+}
