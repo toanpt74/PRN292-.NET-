@@ -162,6 +162,39 @@ class Program
 
 Khi đó chương trình sẽ tự gọi tới các hàm animalSound() tương ứng trong các lớp Pig và Dog
 
+8. Lớp trừu tượng và overide
+Phương thức trừu tượng là các phương thức được khai báo trong các lớp trừu tượng và sẽ được cụ thể hóa trong lớp con thông qua từ khóa override
+
+abstract class Animal
+{
+  // Abstract method (does not have a body)
+  public abstract void animalSound();
+  // Regular method
+  public void sleep()
+  {
+    Console.WriteLine("Zzz");
+  }
+}
+
+// Derived class (inherit from Animal)
+class Pig : Animal
+{
+  public override void animalSound()
+  {
+    // The body of animalSound() is provided here
+    Console.WriteLine("The pig says: wee wee");
+  }
+}
+
+class Program
+{
+  static void Main(string[] args)
+  {
+    Pig myPig = new Pig(); // Create a Pig object
+    myPig.animalSound();  // Call the abstract method
+    myPig.sleep();  // Call the regular method
+  }
+}
 
        
 
