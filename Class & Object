@@ -1,1 +1,48 @@
-a
+1. Khai báo lớp trong C#
+class <Tên lớp>
+{
+  //Khai báo các thuộc tính
+  //Định nghĩa các phương thức
+}
+Ví dụ:
+class Car
+{
+  string color = "red";  
+}
+2. Tạo đối tượng:
+Car xe1 = new Car();
+3. Hàm khởi tạo: constructor
+Hàm khởi tạo là hàm được xây dựng trong lớp và sẽ tự được gọi khi sinh ra đối tượng của lớp
+
+class Car
+{
+  public string model;  // Create a field
+  // Create a class constructor for the Car class
+  public Car()
+  {
+    model = "Mustang"; // Set the initial value for model
+  }  
+}
+
+4. properties:
+A property is like a combination of a variable and a method, and it has two methods: a get and a set method
+class Person
+{
+  private string name; // field
+  public string Name   // property
+  {
+    get { return name; }   // get method
+    set { name = value; }  // set method
+  }
+}
+
+class Program
+{
+  static void Main(string[] args)
+  {
+    Person myObj = new Person();
+    myObj.Name = "Liam";
+    Console.WriteLine(myObj.Name);
+  }
+}
+
