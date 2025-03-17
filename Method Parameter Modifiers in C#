@@ -65,4 +65,30 @@ class Program
     }
 }
 
+4. có thể sử dụng từ khóa params để chỉ định truyền nhiều đối số vào cho hàm trong c#
+using System;
+
+class Program
+{
+    public static void CallFun(params int[] arr)
+    {
+        for (int i = 0; i < arr.Length; i++)
+        {
+            Console.Write(arr[i]);
+            Console.Write(", ");
+        }
+    }
+
+    static void Main()
+    {
+        int[] x = new int[4] { 10, 12, 15, 17 };
+        int a = 20, b = 1988;
+
+        CallFun(x);
+        CallFun(a, b);
+
+        Console.ReadKey();
+    }
+}
+
 
