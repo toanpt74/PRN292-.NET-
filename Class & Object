@@ -45,4 +45,124 @@ class Program
     Console.WriteLine(myObj.Name);
   }
 }
+5. Kế thừa: kế thừa là một tính chất quan trọng của lập trình hướng đối tượng, cho phép các lớp có thể sử dụng lại một phần /toàn bộ dữ liệu và phương thức của các lớp
+class Vehicle  // base class (parent) 
+{
+  public string brand = "Ford";  // Vehicle field
+  public void honk()             // Vehicle method 
+  {                    
+    Console.WriteLine("Tuut, tuut!");
+  }
+}
+
+class Car : Vehicle  // derived class (child)
+{
+  public string modelName = "Mustang";  // Car field
+}
+
+class Program
+{
+  static void Main(string[] args)
+  {
+    // Create a myCar object
+    Car myCar = new Car();
+
+    // Call the honk() method (From the Vehicle class) on the myCar object
+    myCar.honk();
+
+    // Display the value of the brand field (from the Vehicle class) and the value of the modelName from the Car class
+    Console.WriteLine(myCar.brand + " " + myCar.modelName);
+  }
+}
+6. Tính đa hình: đa hình là tính chất quan trọng của lập trình HĐT, nó cho phép cùng một phương thức nhưng có thể có nhiều thể hiện khác nhau trong chương trình
+Xét vị dụ:
+using System;
+
+namespace MyApplication
+{
+  class Animal  // Base class (parent) 
+  {
+    public void animalSound()
+    {
+      Console.WriteLine("The animal makes a sound");
+    }
+  }
+
+  class Pig : Animal  // Derived class (child) 
+  {
+    public void animalSound()
+    {
+      Console.WriteLine("The pig says: wee wee");
+    }
+  }
+
+  class Dog : Animal  // Derived class (child) 
+  {
+    public void animalSound()
+    {
+      Console.WriteLine("The dog says: bow wow");
+    }
+  }
+
+  class Program
+  {
+    static void Main(string[] args)
+    {
+      Animal myAnimal = new Animal();  // Create a Animal object
+      Animal myPig = new Pig();  // Create a Pig object
+      Animal myDog = new Dog();  // Create a Dog object
+      
+      myAnimal.animalSound();
+      myPig.animalSound();
+      myDog.animalSound();
+    }
+  }
+}
+Trong ví dụ có lớp Animal với phương thức animalSound() và hai lớp con là Pig và Dog, khi tạo ra hai đối tượng là  Animal myPig = new Pig();   
+và Animal myDog = new Dog(); Khi gọi phương thức animalSound(), tất cả đều gọi đến phương thức animalSound() từ lớp cha (Animal).
+7. Có thể tạo ra tính đa hình bằng cách sử dụng phương thức ảo
+Trong lớp Animal, tạo phương thức ảo animalSound() theo cú pháp: virtual animalSound()
+class Animal  // Base class (parent) 
+{
+  public virtual void animalSound() 
+  {
+    Console.WriteLine("The animal makes a sound");
+  }
+}
+
+class Pig : Animal  // Derived class (child) 
+{
+  public override void animalSound() 
+  {
+    Console.WriteLine("The pig says: wee wee");
+  }
+}
+
+class Dog : Animal  // Derived class (child) 
+{
+  public override void animalSound() 
+  {
+    Console.WriteLine("The dog says: bow wow");
+  }
+}
+
+class Program 
+{
+  static void Main(string[] args) 
+  {
+    Animal myAnimal = new Animal();  // Create a Animal object
+    Animal myPig = new Pig();  // Create a Pig object
+    Animal myDog = new Dog();  // Create a Dog object
+
+    myAnimal.animalSound();
+    myPig.animalSound();
+    myDog.animalSound();
+  }
+}
+
+Khi đó chương trình sẽ tự gọi tới các hàm animalSound() tương ứng trong các lớp Pig và Dog
+
+
+       
+
 
