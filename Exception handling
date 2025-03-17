@@ -1,1 +1,29 @@
-a
+1. Exception: Là cơ chế xử lý lỗi trong chương trình
+Cú pháp:
+try {
+   // statements causing exception
+} catch( ExceptionName e1 ) {
+   // error handling code
+} catch( ExceptionName e2 ) {
+   // error handling code
+} catch( ExceptionName eN ) {
+   // error handling code
+} finally {
+   // statements to be executed
+}Khối lệnh
+}
+catch(exception){
+  Khối lệnh xử lý lỗi
+}
+Ví dụ: 
+try
+      {
+        int[] myNumbers = {1, 2, 3};
+        Console.WriteLine(myNumbers[10]);
+      }
+      catch (Exception e)
+      {
+        Console.WriteLine(e.Message);
+      }   
+Chương trình khai báo mảng có 3 phần tử, lệnh truy xuất myNumbers[10] bị lỗi vì vượt quá phạm vi của mảng => Khối lệnh trong catch được thực hiện và xuất hiện thông báo lỗi
+
