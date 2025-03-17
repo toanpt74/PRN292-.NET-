@@ -1,1 +1,63 @@
+1. What is a variable
+When a program is running it needs to work with data. For example, a calculator would need to store the numbers a user inputs to be able to do some calculations.
+This data is temporarily stored in the memory (RAM) of your computer throughout the life of the program. When the program stops running, the data is removed from memory.
+2. How to create (declare) a variable
+Cu phap: 
+    type indentifier;
+Example:
+  using System;
 
+class Program
+{
+    static void Main(string[] args)
+    {
+        int shoes;
+    }
+}
+3. How to assign data to a variable
+Syntax: indentifier = value;
+Example:
+using System;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        int shoes;
+        shoes = 10;
+    }
+}
+4. How to initialize a variable
+Syntax: 
+  type indentifier = value;
+using System;
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        int shoes = 10;
+    }
+}
+5. How to use var as an automatic type
+Example:
+  // compiled as an int
+var shoes = 10;
+
+// compiled as a string
+var message = "Hello";
+
+// compiled as int array
+var numbers = new[] { 0, 1, 2 };
+
+// compiled as List<int>
+var list = new List<int>();
+
+6. What is a constant
+Constants are almost exactly the same as variables, the only differences are:
+
+A constant’s value cannot change during runtime, it’s immutable.
+A constant is declared with the const keyword before the type.
+A constant must be initialized, that’s to say, it must have a value when declared.
+Example:
+  const float pi = 3.14f;
