@@ -1,1 +1,23 @@
+Phân biệt:
+Constant & Readonly cho phép tạo ra các đối tượng có giá trị cố định, không thay đổi được trong chương trình
+Static: sử dụng để tạo ra các thành phần tĩnh của lớp, thành phần này cho phép tất cả các đối tượng của lớp có thể truy cập và sử dụng chung
 
+1. constant: khai báo hằng, các hằng cần phải khởi tạo giá trị, giá trị này sẽ không thay đổi được khi thực hiện chương trình:
+public class TestClass
+  {
+    public const double TotalDaysInWeek = 7;
+    public const string FullNameFormat = "Mr./Ms./Mrs" + "{0} {1}";
+    public const string FullNameFormatEmpty = string.Empty;  //Invalid because of string.Empty evaluated on runtime
+  }
+2. Read-only keyword:
+ReadOnly được sử dụng để khai báo các biến trong lớp, các biến này chỉ được khởi tạo giá trị khi khai báo hoặc thay đổi giá trị của chúng trong hàm tạo
+public class TestCase
+  {
+    public readonly double TotalDaysInWeek = 7;
+    public readonly int TotalMonths;
+
+    public TestCase()
+    {
+      TotalMonths = 12;
+    }
+  }
