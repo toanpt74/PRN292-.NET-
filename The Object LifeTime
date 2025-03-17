@@ -1,1 +1,75 @@
+1. Trong c#, khi tạo các đối tượng trong chương trình, khi thực hiện xong, trình thu gom rác sẽ tự động giải phóng bộ nhớ cho chương trình
+Ví dụ:
+static void MakeACar() {
+  Car myCar = new Car();
+}
+Đối tượng myCar được tạo ra trong thủ tục MakeCar(),
+do vậy myCar là một biến cục bộ của thủ tục này, khi kết thúc tủ tục MakeCar thì đối tượng myCar được giải phóng
+Tuy nhiên chúng ta ko thể chắc chắn đối tượng này sẽ được giải phóng ngay
+Các đối tượng được lưu trong vùng bộ nhớ heap và được quản lý bởi CLR
+Khi tạo một đối tượng mới bằng lệnh new, chương trình sẽ thực hiện các việc chính sau:
++ Khi tạo đối tượng bằng từ khóa new, đối tượng được sinh ra và toàn bộ dữ liệu của đối tượng được cấp phát trên vùng nhớ Heap, đồng thời sẽ trả về một con trỏ tới đối tượng, con trỏ này trên vùng Stack.
++ Toàn bộ vùng bộ nhớ Heap được quản lý bởi CLR, khi đối tượng không được sử dụng, CLR sẽ giải phóng vùng nhớ của đối tượng trên Heap
++ Bộ thu gom rác sẽ tự động thu hồi bộ nhớ trên vùng Heap khi các biến đối tượng trong Stack không còn sử dụng
++ Vùng Heap các đối tượng được chia thành các thế hệ (Generation)
+- Generation 0: các đối tượng mới được sinh ra được đưa vào Generation 0
+- Generation 1: các đối tượng ít bị thu hồi
+- Generation 2: các đối tượng ổn định
 
+using System;
+
+public class Geeks 
+{
+    public static void Main(string[] args)
+    {
+        Console.WriteLine("The number of generations are: "
+        + GC.MaxGeneration);
+    }
+}
+
+Ví dụ: chương trình sau tạo ra một object và nó thuộc về Generation 0:
+using System;
+
+using System;
+
+public class Car 
+{
+    public static void Main(string[] args)
+    {
+        Car obj = new Car();
+
+        // Get the generation of the object
+        int c = GC.GetGeneration(obj);
+
+        Console.WriteLine("The generation of the object is: " + c);
+    }
+}
+
+Ví dụ 2: đoạn chương trình sau sẽ tổng hợp số lượng bộ nhớ còn trống và in ra generation
+using System;
+
+public class Car 
+{
+    public static void Main(string[] args)
+    {
+        long memory = GC.GetTotalMemory(false);
+
+        Console.WriteLine("Total Memory:" + memory);
+
+        // Creating object of Geeks class
+        Car obj = new Car();
+
+        // Getting the generation number of object obj
+        int generation = GC.GetGeneration(obj);
+
+        // Displaying the generation number
+        Console.WriteLine("The generation number of object obj is: "
+                        + generation);
+
+        memory = GC.GetTotalMemory(false);
+
+        // Displaying the total memory allocated by the GC
+        Console.WriteLine("Total Memory:" + memory);
+
+    }
+}
