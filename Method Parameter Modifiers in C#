@@ -1,1 +1,11 @@
+Theo ngầm định các tham số được sử dụng trong c# được truyền theo dạng tham trị
+Có thể sử dụng các bổ từ: out, ref, để thay đổi phương thức truyền tham số
+Example: 
+public static void Swap(int x, int y)
+    {
+        int temp = x;
+        x = y;
+        y = temp;
+    }
 
+x, và y được truyền theo dạng tham trị
