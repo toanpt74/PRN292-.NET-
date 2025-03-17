@@ -26,4 +26,45 @@ try
         Console.WriteLine(e.Message);
       }   
 Chương trình khai báo mảng có 3 phần tử, lệnh truy xuất myNumbers[10] bị lỗi vì vượt quá phạm vi của mảng => Khối lệnh trong catch được thực hiện và xuất hiện thông báo lỗi
+2. Một số lớp exception trong C#
+System.IO.IOException
+System.IndexOutOfRangeException
+System.ArrayTypeMismatchException
+System.NullReferenceException
+System.DivideByZeroException
+System.InvalidCastException
+System.OutOfMemoryException
+System.StackOverflowException
 
+2. Ví dụ:
+using System;
+
+namespace DivisionZeroExample
+{
+  class DivNumbers{
+  	float result;
+    public DivNumbers(){
+    	result=0;
+    }
+    public void division(int a, int b){
+    	try{
+        	result = a/b;
+        }catch(DivideByZeroException e){
+        	Console.WriteLine("Thông báo lỗi: {0}", e);
+        }finally{
+        	Console.WriteLine("Kết quả: {0}", result);
+        }
+        
+    }
+  }
+  
+  class Program
+  {
+    static void Main(string[] args)
+    {
+    	DivNumbers div = new DivNumbers();
+        div.division(25,0);
+    }
+  }
+}
+3. 
