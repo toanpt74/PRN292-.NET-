@@ -108,3 +108,17 @@ namespace TempratureExample
   	}
 }
 }
+
+II> BÀI THỰC HÀNH
+1. Write a C# program that prompts the user to input two numbers and divides them. Handle an exception when the user enters non-numeric values.
+2. Write a C# program to implement a method that takes an integer as input and throws an exception if the number is negative. Handle the exception in the calling code.
+3. Write a C# program that reads a file path from the user and tries to open the file. Handle exceptions if the file does not exist.
+4. Write a C# program that prompts the user to input a numeric integer and throws an exception if the number is less than 0 or greater than 1000.
+5. Write a C# program that implements a method that takes an array of integers as input and calculates the average value. Handle the exception if the array is empty.
+6. Write a C# program that reads a string from the user and converts it to an integer. Handle the exception if the input cannot be parsed into an integer.
+7. Write a C# program that reads a list of integers from the user. Handle the exception that occurs if the user enters a value outside the range of Int32.
+8. Write a C# program that implements a method that divides two numbers. Handle the DivideByZeroException that occurs if the denominator is 0.
+9. Write a C# program that creates a method that reads a date from the user in the format "dd/mm/yyyy" and converts it to a DateTime object. Handle an exception if the input format is invalid.
+10. Write a C# program that reads a number from the user and calculates its square root. Handle the exception if the number is negative.
+11. Write a C# program that creates a method that takes a string as input and converts it to uppercase. Handle the NullReferenceException that occurs if the input string is null.
+12. Write a C# program that creates a method that calculates the factorial of a given number. Handle the OverflowException that occurs if the result exceeds the Int32 maximum value.
