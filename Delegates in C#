@@ -64,3 +64,20 @@ class Program
          Console.WriteLine("{0} - {1} ={2} ", a, b, tong);
      }                    
  }
+4. The TV Remote:
+G/s có một cái TV và một cái điều khiển, trên điều khiển có một nút tăng/giảm âm lượng. Cái điều khiển ko quan tâm TV đang ở đâu, và nó vẫn có thể điều khiển âm lượng của TV qua nút Volume.
+public delegate void RemoteAction();
+class Program
+
+{
+    public static void IncreaseVolume()
+    {
+        Console.WriteLine("Volume is increased!!!!");
+    } 
+    static void Main(string[] args)
+    {
+        RemoteAction remoteButton = new RemoteAction(IncreaseVolume);
+        //remoteButton();
+        remoteButton.Invoke();
+    }                    
+}
