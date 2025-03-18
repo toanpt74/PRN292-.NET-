@@ -40,4 +40,27 @@ class Program
 
      }                    
  }
+3. Sử dụng delegate với các phương thức và trả giá trị về từ phương thức
+ public delegate int Calculate(int x, int y);
+ class Program
 
+ {
+     public static int add(int a, int b)
+     {
+         return a + b;
+     }
+     public static int sub(int a, int b)
+     {
+         return a - b;
+     }
+     static void Main(string[] args)
+     {
+         int a = 10, b = 20;
+         Calculate calc = new Calculate(add);
+         int tong = calc(a, b);
+         Console.WriteLine("{0} + {1} ={2} ",a,b, tong);
+         calc = new Calculate(sub);
+         int hieu = calc(a, b);
+         Console.WriteLine("{0} - {1} ={2} ", a, b, tong);
+     }                    
+ }
