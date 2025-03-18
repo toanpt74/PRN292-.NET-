@@ -122,3 +122,426 @@ II> BÀI THỰC HÀNH
 10. Write a C# program that reads a number from the user and calculates its square root. Handle the exception if the number is negative.
 11. Write a C# program that creates a method that takes a string as input and converts it to uppercase. Handle the NullReferenceException that occurs if the input string is null.
 12. Write a C# program that creates a method that calculates the factorial of a given number. Handle the OverflowException that occurs if the result exceeds the Int32 maximum value.
+//////////////////////////////////////////////////////////////////////////
+GIẢI BÀI THỰC HÀNH
+//////////////////////////////////////////////////////////////
+1. Bài 1:
+string input1, input2;
+double a, b, result;
+
+try
+{
+    Console.Write("Enter first number: ");
+    input1 = Console.ReadLine();
+    Console.Write("Enter second number:");
+    input2 = Console.ReadLine();
+    a = Convert.ToDouble(input1);
+    b = Convert.ToDouble(input2);
+    if (b != 0)
+    {
+        result = a / b;
+        Console.WriteLine("T=" + result);
+    }
+    else Console.WriteLine("Can not divide by zero");
+}
+catch (FormatException e)
+{
+    Console.WriteLine("Error input data, " + e.Message.ToString());
+}
+catch (Exception ex)
+{
+    Console.WriteLine("Message: " + ex.Message.ToString());
+}
+---------------------------------------------------------------------------------------
+Bài 2: 
+class NegativeNumberException : Exception
+{
+    public NegativeNumberException(string message) : base(message) { }
+}
+class Program
+{
+    static void Main()
+    {
+        int a;
+        try
+        {
+            Console.Write("Please input a number:");
+            a =Convert.ToInt32(Console.ReadLine());
+            ValidNumberInput(a);
+            Console.WriteLine("Valid number is: " + a);
+        }
+        catch (NegativeNumberException ex) {
+            Console.WriteLine(ex.Message.ToString());
+        }
+        catch(Exception e)
+        {
+            Console.WriteLine(e.Message.ToString());
+        }
+    }
+    static void ValidNumberInput(int num)
+    {
+        if(num < 0)
+        {
+            throw (new NegativeNumberException("Negative number is not allow"));
+        }
+    }
+}
+--------------------------------------------------------------------------------------------
+Bài 3:
+using System;
+using System.IO;
+
+class Program {
+  static void Main() {
+    // Prompt user to input the file path and read the input
+    Console.Write("Input the file path: ");
+    string filePath = Console.ReadLine();
+
+    try {
+      // Attempt to open the file using StreamReader within a using block for automatic resource disposal
+      using(StreamReader reader = new StreamReader(filePath)) {
+        // File opened successfully
+        Console.WriteLine("File opened successfully.");
+      }
+    } catch (FileNotFoundException) {
+      // Catch block for handling FileNotFoundException
+      Console.WriteLine("Error: File not found.");
+    } catch (IOException ex) {
+      // Catch block for handling IOException while accessing the file
+      Console.WriteLine("An error occurred while accessing the file: " + ex.Message);
+    } catch (Exception ex) {
+      // Catch block for handling other types of exceptions
+      Console.WriteLine("An unexpected error occurred: " + ex.Message);
+    }
+  }
+}
+----------------------------------------------------------------------------------------
+Bài 4:
+using System;
+
+class Program {
+  static void Main() {
+    try {
+      // Prompt user to input a numeric integer and read the input
+      Console.Write("Input a numeric integer: ");
+      int number = Convert.ToInt32(Console.ReadLine());
+
+      // Call method to validate number range
+      ValidateNumberRange(number);
+
+      // Display valid input if no exception was thrown
+      Console.WriteLine("Valid input: " + number);
+    } catch (NumberOutOfRangeException ex) {
+      // Catch block for handling NumberOutOfRangeException
+      Console.WriteLine("Error: " + ex.Message);
+    } catch (FormatException) {
+      // Catch block for handling FormatException when non-numeric input is entered
+      Console.WriteLine("Error: Invalid input. Please enter a numeric integer.");
+    } catch (Exception ex) {
+      // Catch block for handling other types of exceptions
+      Console.WriteLine("An error occurred: " + ex.Message);
+    }
+  }
+
+  // Method to validate if the number is within the specified range
+  static void ValidateNumberRange(int number) {
+    if (number < 0 || number > 1000) {
+      // Throw NumberOutOfRangeException if the number is out of the specified range
+      throw new NumberOutOfRangeException("Number out of range. Please enter a number between 0 and 1000.");
+    }
+  }
+}
+
+// Custom exception class for NumberOutOfRangeException
+class NumberOutOfRangeException: Exception {
+  public NumberOutOfRangeException(string message): base(message) {}
+}
+--------------------------------------------------------------------------------
+Bài 5:
+using System;
+
+class Program {
+  static void Main() {
+    try {
+      // Prompt the user to input the size of the array
+      Console.Write("Input the size of the array: ");
+      int count = Convert.ToInt32(Console.ReadLine());
+
+      // Create an array of integers based on user-provided count
+      int[] numbers = new int[count];
+
+      // Loop to input elements into the array
+      for (int i = 0; i < count; i++) {
+        Console.Write("Input element-{0}: ", i + 1);
+        numbers[i] = Convert.ToInt32(Console.ReadLine());
+      }
+
+      // Calculate the average of the array elements
+      double average = CalculateAverage(numbers);
+
+      // Display the calculated average
+      Console.WriteLine("Average: " + average);
+    } catch (EmptyArrayException ex) {
+      // Catch block for handling EmptyArrayException
+      Console.WriteLine("Error: " + ex.Message);
+    } catch (FormatException) {
+      // Catch block for handling FormatException when non-integer input is entered
+      Console.WriteLine("Error: Invalid input. Please input integers only.");
+    } catch (Exception ex) {
+      // Catch block for handling other types of exceptions
+      Console.WriteLine("An error occurred: " + ex.Message);
+    }
+  }
+
+  // Method to calculate the average of an array of integers
+  static double CalculateAverage(int[] numbers) {
+    if (numbers.Length == 0) {
+      // Throw EmptyArrayException if the array is empty
+      throw new EmptyArrayException("Array is empty. Cannot calculate average.");
+    }
+
+    int sum = 0;
+    // Loop to calculate the sum of array elements
+    for (int i = 0; i < numbers.Length; i++) {
+      sum += numbers[i];
+    }
+
+    // Calculate and return the average
+    return (double) sum / numbers.Length;
+  }
+}
+
+// Custom exception class for EmptyArrayException
+class EmptyArrayException: Exception {
+  public EmptyArrayException(string message): base(message) {}
+}
+--------------------------------------------------------------------
+Bài 6:
+using System;
+
+class Program {
+  static void Main() {
+    try {
+      // Prompt the user to input a number
+      Console.Write("Input a number: ");
+      string input = Console.ReadLine();
+
+      // Attempt to convert the user input to an integer
+      int number = ConvertToInt(input);
+
+      // Display the converted number
+      Console.WriteLine("Number: " + number);
+    } catch (FormatException) {
+      // Catch block for handling FormatException when non-integer input is entered
+      Console.WriteLine("Error: Invalid input. Please enter a valid integer.");
+    } catch (Exception ex) {
+      // Catch block for handling other types of exceptions
+      Console.WriteLine("An error occurred: " + ex.Message);
+    }
+  }
+
+  // Method to convert string input to an integer
+  static int ConvertToInt(string input) {
+    return int.Parse(input); // Convert string to integer
+  }
+}
+--------------------------------------------------------------------------------------------
+Bài 7:
+using System;
+using System.Collections.Generic;
+
+class Program {
+  static void Main() {
+    // Create a list to store integers
+    List<int> numbers = new List<int>();
+
+    try {
+      // Prompt the user to input a list of integers, enter 'exit' to finish
+      Console.WriteLine("Input a list of integers (Input 'exit' to finish):");
+
+      // Continuously read user input until 'exit' is entered
+      while (true) {
+        Console.Write("Input an integer: ");
+        string input = Console.ReadLine();
+
+        // Check if user wants to exit the loop
+        if (input.ToLower() == "exit")
+          break;
+
+        // Convert user input to an integer and add it to the list
+        int number = ConvertToInt32(input);
+        numbers.Add(number);
+      }
+
+      // Display the numbers entered by the user
+      Console.WriteLine("Numbers entered:");
+      foreach(int number in numbers) {
+        Console.WriteLine(number);
+      }
+    } catch (FormatException) {
+      // Catch block for handling FormatException when non-integer input is entered
+      Console.WriteLine("Error: Invalid input. Please enter a valid integer.");
+    } catch (OverflowException) {
+      // Catch block for handling OverflowException when the entered value is outside the range of Int32
+      Console.WriteLine("Error: The value entered is outside the range of Int32.");
+    } catch (Exception ex) {
+      // Catch block for handling other types of exceptions
+      Console.WriteLine("An error occurred: " + ex.Message);
+    }
+  }
+
+  // Method to convert string input to an integer
+  static int ConvertToInt32(string input) {
+    return int.Parse(input); // Convert string to Int32
+  }
+}
+-------------------------------------------------------------------------------------------------
+Bài 8:
+using System;
+
+class Program {
+  static void Main() {
+    try {
+      // Prompt the user to input the numerator and convert it to an integer
+      Console.Write("Input the numerator: ");
+      int numerator = Convert.ToInt32(Console.ReadLine());
+
+      // Prompt the user to input the denominator and convert it to an integer
+      Console.Write("Input the denominator: ");
+      int denominator = Convert.ToInt32(Console.ReadLine());
+
+      // Call the DivideNumbers method to perform division and store the result
+      int result = DivideNumbers(numerator, denominator);
+
+      // Display the division result to the user
+      Console.WriteLine("Result: " + result);
+    } catch (DivideByZeroException) {
+      // Catch block for handling DivideByZeroException (division by zero error)
+      Console.WriteLine("Error: Division by zero is not allowed.");
+    } catch (FormatException) {
+      // Catch block for handling FormatException (invalid input format)
+      Console.WriteLine("Error: Invalid input. Please enter valid integers.");
+    } catch (Exception ex) {
+      // Catch block for handling other types of exceptions
+      Console.WriteLine("An error occurred: " + ex.Message);
+    }
+  }
+
+  // Method to perform division of two integers
+  static int DivideNumbers(int numerator, int denominator) {
+    return numerator / denominator; // Perform integer division
+  }
+}
+------------------------------------------------------
+Bài 9:
+using System;
+
+class Program {
+  static void Main() {
+    try {
+      // Prompt the user to input a date in a specific format (dd/mm/yyyy)
+      Console.Write("Input a date (format-> dd/mm/yyyy): ");
+      string input = Console.ReadLine();
+
+      // Convert the user-input string to a DateTime object using the ConvertToDate method
+      DateTime date = ConvertToDate(input);
+
+      // Display the formatted date to the user
+      Console.WriteLine("Date: " + date.ToShortDateString());
+    } catch (FormatException) {
+      // Catch block for handling FormatException (invalid date format)
+      Console.WriteLine("Error: Invalid date format. Please input a valid date in the format dd/mm/yyyy.");
+    } catch (Exception ex) {
+      // Catch block for handling other types of exceptions
+      Console.WriteLine("An error occurred: " + ex.Message);
+    }
+  }
+
+  // Method to convert a string to a DateTime object based on a specific format
+  static DateTime ConvertToDate(string input) {
+    // Define the date format expected from the user input
+    string[] format = { "dd/MM/yyyy" };
+
+    // Parse the input string to a DateTime object using the specified format
+    return DateTime.ParseExact(input, format, null, System.Globalization.DateTimeStyles.None);
+  }
+}
+----------------------------------------------------------------------
+Bài 10:
+using System;
+
+class Program {
+  static void Main() {
+    try {
+      // Ask the user to input a number
+      Console.Write("Input a number: ");
+      double number = Convert.ToDouble(Console.ReadLine());
+
+      // Check if the input number is non-negative
+      if (number >= 0) {
+        // Calculate the square root if the number is non-negative
+        double squareRoot = CalculateSquareRoot(number);
+        Console.WriteLine("Square root: " + squareRoot);
+      } else {
+        // Throw an ArgumentException if the number is negative
+        throw new ArgumentException("Number cannot be negative!");
+      }
+    } catch (FormatException) {
+      // Catch block for handling FormatException (invalid input)
+      Console.WriteLine("Error: Invalid input. Please input a valid number.");
+    } catch (ArgumentException ex) {
+      // Catch block for handling ArgumentException (negative number)
+      Console.WriteLine("Error: " + ex.Message);
+    } catch (Exception ex) {
+      // Catch block for handling other types of exceptions
+      Console.WriteLine("An error occurred: " + ex.Message);
+    }
+  }
+
+  // Method to calculate the square root of a number
+  static double CalculateSquareRoot(double number) {
+    // Using the Math.Sqrt method to calculate the square root
+    return Math.Sqrt(number);
+  }
+}
+----------------------------------------------------------------------
+Bài 11:
+using System;
+
+class Program {
+  static void Main() {
+    try {
+      // Ask the user to input a string
+      Console.Write("Input a string: ");
+      string input = Console.ReadLine();
+
+      // Convert the input string to uppercase
+      string result = ConvertToUppercase(input);
+
+      // Display the converted uppercase string
+      Console.WriteLine("Uppercase string: " + result);
+    } catch (NullReferenceException) {
+      // Catch block for handling NullReferenceException (null input)
+      Console.WriteLine("Error: Input string is null.");
+    } catch (ArgumentException ex) {
+      // Catch block for handling ArgumentException (null or empty input)
+      Console.WriteLine("Error: " + ex.Message);
+    } catch (Exception ex) {
+      // Catch block for handling other types of exceptions
+      Console.WriteLine("An error occurred: " + ex.Message);
+    }
+  }
+
+  // Method to convert a string to uppercase
+  static string ConvertToUppercase(string input) {
+    // Check if the input string is null or empty
+    if (string.IsNullOrEmpty(input)) {
+      // Throw an ArgumentException if the input is null or empty
+      throw new ArgumentException("Input string is null or empty.");
+    }
+
+    // Convert the input string to uppercase using the ToUpper method
+    return input.ToUpper();
+  }
+}
+
