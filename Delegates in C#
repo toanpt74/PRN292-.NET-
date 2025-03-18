@@ -18,4 +18,26 @@ class Program
 
     }                    
 }
+2. Kết hợp các phương thức trong cùng một delegate
+ public delegate void PrintMessage(string message);
+ class Program
+
+ {
+     public static void printToConsole(string message)
+     {
+         Console.WriteLine(message);
+     }
+     public static void printToFile(string file)
+     {
+         Console.WriteLine("Print to File: " + file);
+     }
+     static void Main(string[] args)
+     {
+
+         PrintMessage printMessageDel = new PrintMessage(printToConsole);
+         printMessageDel += printToFile;
+         printMessageDel("Hello World!!!");
+
+     }                    
+ }
 
