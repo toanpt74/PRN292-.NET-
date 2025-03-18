@@ -171,3 +171,110 @@ Hãy xây dựng chương trình quản lý sinh viên với các tính năng
 + Xóa
 + Sắp xếp
 Sử dụng các cấu trúc như List, Queue,.. để lưu trữ dữ liệu
+
+-------------------------------------------------------------------------
+using System;
+
+using System.Collections.Generic;
+
+namespace StudentManagement
+{
+    public class student
+    {
+        public string Id { get; set; }
+        public string Name { get; set; }
+        public int Age { get; set; }
+        public double testScore { get; set; }
+        public student(string id, string name, int age, double score)
+        {
+            Id = id;
+            Name = name;
+            Age = age;
+            testScore = score;
+        }
+        public override string ToString()
+        {
+            return "ID: " + Id + ", Name: " + Name + ", Age: " + Age + ", Score: " + testScore;
+        }
+    }
+
+    class Program
+
+    {
+        static void Main(string[] args)
+        {
+            string chon;
+            List<student> students = new List<student>();
+            
+
+            //Create menu
+            while (true)
+            {
+                Console.WriteLine("CHUONG TRINH QUAN LY SINH VIEN");
+                Console.WriteLine("1 - Them moi sinh vien");
+                Console.WriteLine("2 - Cap nhat thong tin sinh vien");
+                Console.WriteLine("3 - Tim kiem sinh vien");
+                Console.WriteLine("4 - Xoa sinh vien");
+                Console.WriteLine("5 - In danh sach");
+                Console.WriteLine("0 - Thoat");
+                Console.Write("Bam phim tuong ung (1-5) de chon chuc nang:");
+                chon = (Console.ReadLine());
+                if (chon == "0") break;
+                switch (chon)
+                {
+                    case "1": add(students) ;
+                        break;
+                    case "2": Console.WriteLine();
+                        break;
+                    case "5":
+                        display(students);
+                        Console.ReadKey();
+                        break;
+                }
+                
+            }
+            
+        }
+        public static void add(List<student> students)
+        {
+            string id;
+            string name;
+            int age;
+            double score;
+            try
+            {
+                Console.WriteLine("Nhap thong tin sinh vien");
+                Console.Write("Ma sinh vien:");
+                id = Console.ReadLine();
+                Console.Write("Ten sinh vien:");
+                name = Console.ReadLine();
+                Console.Write("Tuoi:");
+                age = Convert.ToInt32(Console.ReadLine());
+                Console.Write("Diem thi:");
+                score = Convert.ToDouble(Console.ReadLine());
+                student st = new student(id, name, age, score);
+                students.Add(st);
+            }
+            catch(FormatException ex)
+            {
+                Console.WriteLine("Nhap sai dinh dang du lieu");
+            }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message.ToString()); ;
+            }
+
+        }
+
+        public static void display(List<student> students)
+        {
+            Console.WriteLine("DANH SACH SINH VIEN");
+            Console.WriteLine("{0,5}\t|{1,20}\t|{2,8}\t|{3,8}\t", "STT", "HO TEN", "AGE", "SCORE");
+            for (int i=0; i < students.Count; i++)
+            {
+                student st =(student) students[i];
+                Console.WriteLine("{0,5}\t|{1,20}\t|{2,9}\t|{3,8}\t",st.Id, st.Name, st.Age, st.testScore );
+            }
+        }
+    }
+}
