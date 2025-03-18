@@ -1,1 +1,56 @@
+1. Interface: 
+interface tương tự như lớp trừu tượng, trong interface chỉ chứa các thuộc tính và khai báo phương thức. Không chứa nội dung của phương thức
+interface IVehicle
+{
+    void speedUp(int speed);
+}
 
+class Bicycle:IVehicle
+{
+    int speed;
+    public Bicycle(int s)
+    {
+        speed = s;
+    }
+    public void speedUp(int a)
+    {
+        speed += a;
+    }
+    public void checkSpeed()
+    {
+        Console.WriteLine("Current speed is: " + speed);
+    }
+}
+class Bike : IVehicle
+{
+    int speed;
+    public Bike(int s)
+    {
+        speed = s;
+    }
+    public void speedUp(int a)
+    {
+        speed += a;
+    }
+    public void checkSpeed()
+    {
+        Console.WriteLine("Current speed is: " + speed);
+    }
+}
+class Program
+{
+    static void Main()
+    {
+        Bicycle bi = new Bicycle(10);
+        Bike bk = new Bike(60);
+        bi.checkSpeed();
+        bk.checkSpeed();
+        Console.WriteLine("Speed up the Bicycle up to 5");
+        bi.speedUp(5);
+        bi.checkSpeed();
+        Console.WriteLine("Speed up the bike up to 2");
+        bk.speedUp(2);
+        bk.checkSpeed();
+    }
+    
+}
