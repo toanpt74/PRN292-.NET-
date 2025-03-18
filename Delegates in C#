@@ -81,3 +81,44 @@ class Program
         remoteButton.Invoke();
     }                    
 }
+5. Xử lý với Even 
+Chương trình tích hợp delegate và Event
++ Tạo một delegate NotifyEventHandler
++ Tạo một lớp Publisher với sự kiện Notify (sự kiện này được khai báo thông qua delegate)
++ Xây dựng hàm RaiseEvent(), hàm này kiểm tra xem con trỏ Notify có khác null không, nếu đúng sẽ hiển thị thông báo và kích hoạt sự kiện Notify.Invoke()
++ Xây dựng lớp Subscriber, với hàm Notification()
+Hàm main khởi tạo hai đối tượng publisher và subscriber. Gán event Notify của publisher vào hàm Notification của subscriber và goi phương thức RaiseEvent()
+ public delegate void NotifyEventHandler();
+ 
+ public class Publisher
+ {
+     public event NotifyEventHandler Notify;
+     public void RaiseEvent()
+     {
+         if (Notify != null)
+         {
+             Console.WriteLine("Publisher Raise Event!!!!");
+             Notify.Invoke();
+         }
+     }
+ }
+ public class Subscriber
+ {
+     public void Notification()
+     {
+         Console.WriteLine("Subscriber is received notification");
+     }
+ }
+ class Program
+
+ {        
+     static void Main(string[] args)
+     {
+         Publisher publisher = new Publisher();
+         Subscriber subscriber = new Subscriber();
+
+         publisher.Notify += subscriber.Notification;
+         publisher.RaiseEvent();
+
+     }                    
+ }
