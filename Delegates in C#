@@ -1,1 +1,20 @@
+1> Khái niệm
+Delegate là một cơ chế trong c#, cho phép gọi thực hiện các hàm và các sự kiện, Delegate cho phép chúng ta làm việc với các hàm như các đối tượng.
+Trong C#, delegate được xem như một con trỏ trỏ tới các phương thức
+Ví dụ: 
+public delegate void PrintMessage(string message);     
+class Program
 
+{
+    public static void HelloWorld(string message)
+    {
+        Console.WriteLine(message);
+    }
+    static void Main(string[] args)
+    {
+
+        PrintMessage printMessageDel = new PrintMessage(HelloWorld);
+        printMessageDel("Hello World!!!");
+
+    }                    
+}
