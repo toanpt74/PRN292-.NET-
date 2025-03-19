@@ -1,0 +1,278 @@
+ 
+using System;
+using System.Threading;
+
+namespace StudentManagement
+{
+    
+    
+    class Program
+
+    {   
+        public static void CountNumber()
+        {
+            for(int i=1; i <= 100; i++)
+            {
+                Console.WriteLine("Number: " + i);
+                Thread.Sleep(1000);
+            }
+        }
+        public static void DisplayCharacter()
+        {
+            char[] characters = { 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H' };
+            foreach(char c in characters)
+            {
+                Console.WriteLine("Character: " + c);
+                Thread.Sleep(1500);
+            }
+        }
+        static void Main(string[] args)
+        {
+            Thread t1 = new Thread(CountNumber);     
+            Thread t2 = new Thread(DisplayCharacter);
+            Console.WriteLine("Thread Start......");
+            t1.Start();
+            t2.Start();
+            //Chờ cho đến khi các luồng t1, t2 kết thúc sẽ thực thi các lệnh tiếp theo
+            t1.Join();
+            t2.Join();
+            Console.WriteLine("Thread Completed.");
+
+        }                    
+    }
+}
+/////////////////////////////////////
+Bài tập 1: Viết chương trình tính tổng các phần tử của một vector lớn.
+Chương trình sẽ chia vector thành các phần sau đó khởi tạo các thread và tính tổng cho từng phần.
+Cuối cùng sẽ tính tổng của các phần nhỏ đó
+ 
+using System;
+using System.Drawing;
+using System.Threading;
+
+namespace StudentManagement
+{
+    
+    
+    class Program
+    {
+        static int[] numbers;
+        static int total = 0;
+        static object lockObject = new object();
+        static void Main(string[] args)
+        {
+            Random rnd = new Random();
+            int size = 1000000;
+            numbers= new int[size];
+            for (int i = 0; i < size; i++)
+                numbers[i] = rnd.Next(1, 101);
+            Console.WriteLine("The numbers of Vector");
+           // for (int i = 0; i < size; i++)
+           //     Console.Write(numbers[i] + ",");
+
+            int numberOfThreads = 4;
+            int partSize = size / numberOfThreads;
+            Thread[] threads = new Thread[numberOfThreads];
+
+            for(int i=0; i<numberOfThreads; i++)
+            {
+                int start = i * partSize;
+                int end;
+                if (start + partSize < size)
+                    end = start + partSize;
+                else end = size;
+
+                threads[i] = new Thread(()=>CalculateTotal(start, end));
+                threads[i].Start();
+            }    
+            foreach(var t in threads)
+            {
+                t.Join();
+            }
+            Console.WriteLine("Total: " + total);
+        } 
+        
+        public static void CalculateTotal(int start, int end)
+        {
+            int partialSum = 0;
+            for (int i = start; i < end; i++)
+            {
+                partialSum+= numbers[i];
+            }
+            lock (lockObject)
+            {
+                total += partialSum;
+            }
+        }
+    }
+}
+------------------------------------------
+Chú ý: sử dụng lock để khóa các tiến trình trước khi tính tổng. khi gặp lock() tất cả các tiến trình khác không được thực hiện cho đến khi tiến trình hiện tại kết thúc
+
+------------------------Điều chỉnh chương trình bằng cách thêm stopwatch để hiển thị thời gian tính toán -----------------------------------------------------
+using System;
+using System.Drawing;
+using System.Threading;
+using System.Diagnostics;
+
+namespace ThreadExample
+{
+
+
+    class Program
+    {
+        static int[] numbers;
+        static int total = 0;
+        static object lockObject = new object();
+        static void Main(string[] args)
+        {
+            Random rnd = new Random();
+            int size = 1000000;
+            numbers = new int[size];
+            for (int i = 0; i < size; i++)
+                numbers[i] = rnd.Next(1, 101);
+
+            //Console.WriteLine("The numbers of Vector");
+            // for (int i = 0; i < size; i++)
+            //     Console.Write(numbers[i] + ",");
+
+            Console.WriteLine("Starting.......");
+            Stopwatch sw = Stopwatch.StartNew();
+            
+            int numberOfThreads = 4;
+            int partSize = size / numberOfThreads;
+            Thread[] threads = new Thread[numberOfThreads];
+
+            for (int i = 0; i < numberOfThreads; i++)
+            {
+                int start = i * partSize;
+                int end;
+                if (start + partSize < size)
+                    end = start + partSize;
+                else end = size;
+
+                threads[i] = new Thread(() => CalculateTotal(start, end));
+                threads[i].Start();
+            }
+            foreach (var t in threads)
+            {
+                t.Join();
+            }
+            sw.Stop();
+            Console.WriteLine("Total: " + total);
+            Console.WriteLine("Total time is: " + sw.ElapsedMilliseconds + " ms");
+        }
+
+        public static void CalculateTotal(int start, int end)
+        {
+            int partialSum = 0;
+            for (int i = start; i < end; i++)
+            {
+                partialSum += numbers[i];
+            }
+            lock (lockObject)
+            {
+                total += partialSum;
+            }
+        }
+    }
+}
+========================================================================================
+ Bài tập 2: Chương trình sử dụng thread để tính tổng hai vector
+ 
+using System;
+using System.Drawing;
+using System.Threading;
+using System.Diagnostics;
+
+namespace ThreadExample
+{
+
+    public class Vector
+    {
+        int size;
+        public int[] value;
+        public Vector()
+        {
+            size = 10000000;
+            value = new int[size];
+            Random  rd = new Random();
+            for(int i=0; i<size; i++)
+                value[i] = rd.Next(1, 101);
+        }
+        
+        public int getSize()
+        {
+            return size;
+        }
+    }
+
+    class Program
+    {
+        static Vector V1 = new Vector();
+        static Vector V2 = new Vector();
+        static Vector V = new Vector();
+        static object lockObject = new object();
+
+        static void Main(string[] args)
+        {
+            int size = V1.getSize();
+            int numberThreads = 5;
+            int partSize = size / numberThreads;           
+            Thread[] threads = new Thread[numberThreads];
+            
+            Console.WriteLine("Starting.........");
+            Stopwatch sw = Stopwatch.StartNew();
+            for(int i=0; i<numberThreads;i++)
+            {
+                int start = i * partSize;
+                int end;
+                if (start + partSize < size)
+                    end = start + partSize;
+                else end = size;
+
+                threads[i] = new Thread(()=>SumVector(start, end));
+                threads[i].Start();
+            }
+
+            Thread threadShow = new Thread(() => display());
+            threadShow.Start();
+
+            foreach (var t in threads)
+            {
+                t.Join();
+            }
+            threadShow.Join();
+            sw.Stop();
+           
+            Console.WriteLine("Finished...");
+            Console.WriteLine("Time: " + sw.ElapsedMilliseconds + " ms");
+            
+        }
+        
+        public static void SumVector(int start, int end)
+        {
+            for(int i=start; i < end; i++)
+            {
+                V.value[i] = V1.value[i] + V2.value[i];
+            }
+        }
+
+        public static void display()
+        {
+            Console.WriteLine("The 10 first element in Vector");
+            for(int i=0; i<10;i++)
+                Console.Write(V1.value[i] + ", ");
+            Console.WriteLine();
+            Console.WriteLine("-------------------------------------------");
+            for (int i = 0; i < 10; i++)
+                Console.Write(V2.value[i] + ", ");
+            Console.WriteLine();
+            Console.WriteLine("-------------------------------------------");
+            for (int i = 0; i < 10; i++)
+                Console.Write(V.value[i] + ", ");
+        }
+
+        
+    }
+}
