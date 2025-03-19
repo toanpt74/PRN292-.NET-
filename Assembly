@@ -1,0 +1,108 @@
+Xây dựng thư viện dll cho phép quản lý các thông tin cơ bản về các task. Trong thư viện gồm các lớp mô tả công việc và các phương thức
++ Thêm công việc mới
++ Hiển thị danh sách công việc
++ Cập nhật công việc
++ Xóa task
++ Lưu các task vào tệp tin json
+
+Code thư viện Task
+
+namespace TaskLib
+{
+    public class TaskItem
+    {
+        public int Id { get; set; }
+        public string Title { get; set; }    
+        public string Description {  get; set; }
+        public DateTime DueDate { get; set; }
+        public bool IsCompleted { get; set; }
+    }
+    public class TaskManager
+    {
+        private List<TaskItem> tasks = new List<TaskItem>();
+        public void AddTask(TaskItem item)
+        {
+            item.Id = item.Id + 1;
+            tasks.Add(item);
+        }
+        public List<TaskItem> GetTasks() {  return tasks; }
+        public void RemoveTask(int id) { 
+            tasks.RemoveAll(task => task.Id == id);
+        }
+        public void MarkAsCompleted(int id)
+        {
+            var task = tasks.Find(task => task.Id == id);
+            if (task != null)
+            {
+                task.IsCompleted = true;
+            }
+        }
+    }
+}
+
+2. Xây dựng chương trình sử dụng thư viện này
+
+ 
+using System;
+using TaskLib;
+
+namespace StudentManagement
+{
+    
+    
+    class Program
+
+    {   
+        
+        static void Main(string[] args)
+        {
+            int id;
+            string title;
+            string description;
+            DateTime duedate;
+            bool completed;
+            TaskManager taskManager = new TaskManager();
+            string choice;
+            int i = 1;
+            while (true)
+            {
+                Console.WriteLine("Enter the information of the task: " + i);
+                Console.WriteLine("---------------------------------");                
+                Console.Write("Enter Title:");
+                title = Console.ReadLine();
+                Console.Write("Enter Descrition:");
+                description = Console.ReadLine();
+                Console.Write("Enter Due Date:");
+                duedate = Convert.ToDateTime(Console.ReadLine());
+                Console.Write("Enter Completed Status:");
+                completed = Convert.ToBoolean(Console.ReadLine());
+                TaskItem item = new TaskItem();
+                item.Title = title;
+                item.Description = description;
+                item.DueDate = duedate;
+                item.IsCompleted = completed;
+                taskManager.AddTask(item);
+                Console.WriteLine("--------------------------------");
+                Console.Write("Do you want to continue input data?(C/K)");
+                choice = Console.ReadLine();
+                if (choice == "K") break;
+            }
+            //Hiển thị các thông tin về task
+            Console.WriteLine("{0,5}|{1,15}|{2,15}|{3,8}|{4,5}","ID","Title","Description","Due Date","Completed");
+            foreach(var task in  taskManager.GetTasks())
+            {
+                Console.WriteLine("{0,5}|{1,15}|{2,15}|{3,8}|{4,5}", task.Id, task.Title, task.Description, task.DueDate, task.IsCompleted);
+            }
+                   
+
+        }                    
+    }
+}
+
+
+3. Phát triển thêm chương trình cho các tính năng mới:
++ Tạo menu chọn cho chương trình
++ Thống kê các tác vụ quá thời gian
++ Tạo báo cáo thống kê về các công việc đã hoàn thành, chưa hoàn thành,...
++ Lưu trữ các task vào tệp theo cấu trúc json
+
