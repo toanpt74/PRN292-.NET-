@@ -124,7 +124,7 @@ Hàm main khởi tạo hai đối tượng publisher và subscriber. Gán event 
  }
 //////////////////////////////////////////////////////////////////////////////
 Bài tập 1:
-
+ 
 Xây dựng chương trình quản lý thông tin tiền vay trong tài khoản ngân hàng
 1. Nhập vào thông tin số tiền gốc cần vay
 2. Nhập tỷ lệ lãi suất
