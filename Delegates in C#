@@ -122,3 +122,220 @@ Hàm main khởi tạo hai đối tượng publisher và subscriber. Gán event 
 
      }                    
  }
+//////////////////////////////////////////////////////////////////////////////
+Bài tập 1:
+
+Xây dựng chương trình quản lý thông tin tiền vay trong tài khoản ngân hàng
+1. Nhập vào thông tin số tiền gốc cần vay
+2. Nhập tỷ lệ lãi suất
+3. Chọn chhu kỳ lãi suất theo ngày, tháng, năm
+4. Tính số tiền lĩa cần phải tra theo chu kỳ (công thức tiền lãi = tiền gốc * tỷ lệ% * số thời gian theo chu kỳ)
+5. In ra thông tin chi tiết
+6. Áp dụng delegate để tạo một hàm tính tổng của tiền gốc và tiền lãi
+7. In ra thông tin về tổng số tiền cần trả (bao gồm cả lãi và gốc)
+Chú ý: trình bày giao diện chương trình và định dạng dữ liệu đầu ra
+
+delegate double Add2Values(double Value1, double Value2);
+public class LoanEvaluation
+{
+    //Thông tin khoản vay gốc
+    public double GetPrincipal()
+    {
+        Console.Write("Enter the Principal:        $");
+        double P = double.Parse(Console.ReadLine());
+        return P;
+    }
+    public double GetInterestRate()
+    {
+        Console.Write("Enter the Interest Rate:     $");
+        double r = Convert.ToDouble(Console.ReadLine());
+        return r;
+    }
+    public double GetPeriod(ref int TypeOfPeriod, ref double Periods)
+    {
+        Console.WriteLine("How do you want to enter the length of time?");
+        Console.WriteLine("1 - In Days");
+        Console.WriteLine("2 - In Months");
+        Console.WriteLine("3 - In Years");
+        Console.Write("Your Choice: ");
+        TypeOfPeriod = int.Parse(Console.ReadLine());
+        if (TypeOfPeriod == 1)
+        {
+            Console.Write("Enter the number of days: ");
+            Periods = double.Parse(Console.ReadLine());
+            return Periods / 360;
+        }
+        else if (TypeOfPeriod == 2)
+        {
+            Console.Write("Enter the number of months: ");
+            Periods = double.Parse(Console.ReadLine());
+            return Periods / 12;
+        }else if (TypeOfPeriod == 3)
+        {
+            Console.Write("Enter the number of years: ");
+            Periods = double.Parse(Console.ReadLine());
+            return Periods;
+        }
+        else
+        {
+            TypeOfPeriod = 0;
+            // The user made an invalid selection. So, we will give up
+            Console.WriteLine("Bad Selection\n");
+            return 0;
+        }
+       
+    }
+
+    public double InterestAmount(double P, double r, double t) { return P * (r / 100) * t; }
+}
+
+class Program
+
+{   
+    public static double Sum2Value(double v1, double v2)
+    {
+        return v1 + v2;
+    }
+    static void Main(string[] args)
+    {
+
+        double Principal, IntRate, Period, AmountPaidAsInterest;
+        int TypeOfPeriod = 0;
+        double Periods = 0D;
+        string PeriodName = null;
+        LoanEvaluation loan = new LoanEvaluation();
+        Console.WriteLine("\n%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%");
+        Console.WriteLine("This program allows you to calculate the amount of money a ");
+        Console.WriteLine("customer will owe at the end of the lifetime of a loan\n");
+        Console.WriteLine("Loan Processing\n");
+        
+        Principal = loan.GetPrincipal();
+        IntRate = loan.GetInterestRate();
+        Period = loan.GetPeriod(ref TypeOfPeriod, ref Periods);
+        AmountPaidAsInterest =loan.InterestAmount(Principal, IntRate, Period);
+
+        if (TypeOfPeriod == 0)
+
+        {                
+            return ;
+        } 
+        if (TypeOfPeriod == 1)
+        {
+            PeriodName = "days";
+        }
+        else if (TypeOfPeriod == 2)
+        {
+            PeriodName = "months";
+        }
+        else if (TypeOfPeriod == 3)
+        {
+            PeriodName = "years";
+        }
+        //Add2Values Add = (double Value1, double Value2) => { return Value1 + Value2; };
+
+        Add2Values Add = new Add2Values(Sum2Value);
+        double total = Add(Principal, AmountPaidAsInterest);
+
+        Console.WriteLine("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%\n");
+        Console.WriteLine("==================================");
+        Console.WriteLine("Estimate on loan");
+        Console.WriteLine("----------------------------------");
+        Console.WriteLine("Principal: {0:C}", Principal);
+        Console.WriteLine("Interest:  {0:P}", IntRate / 100);
+        Console.WriteLine("Period:    {0} {1}", Periods, PeriodName);
+        Console.WriteLine("--------------------------------");
+        Console.WriteLine("Total Amount Paid:    {0:C}", total);
+        Console.WriteLine("Interest paid on Loan: {0:C}",AmountPaidAsInterest);
+        Console.WriteLine("==================================\n");
+
+    }                    
+}
+//////////////////////////////////////////////////////////
+Bài tập 2:
+Xây dựng hệ thống giám sát nhiệt độ của lò hạt nhân. Khi nhiệt độ quá ngưỡng (100 độ) hệ thống sẽ
++ Cảnh báo qua còi hú
++ Gửi thông điệp trực tiếp tới kỹ sư vận hành
++ Tự động kích hoạt hệ thống làm mát
+
+using System;
+
+using System.Collections.Generic;
+
+namespace StudentManagement
+{
+    
+    public class TemperatureMonitor
+    {
+        public delegate void TemperatureExceedHandler(Object sender, EventArgs e);
+        public event TemperatureExceedHandler TemperatureExceed;
+        private int currentTemperature;
+        public int CurrentTemperature { 
+            get => currentTemperature;
+            set
+            {
+                currentTemperature = value;
+                Console.WriteLine($"Current temperature: {value}°C");
+                if (value > 100)
+                {
+                    OnTemperatureExceeded();
+                }
+            }
+            
+        }
+        protected virtual void OnTemperatureExceeded()
+        {
+            //TemperatureExceed?.Invoke(this, EventArgs.Empty);
+            if(TemperatureExceed!=null) 
+                TemperatureExceed.Invoke(this, EventArgs.Empty);
+        }
+    }
+    //Lớp cảnh báo thứ nhất, hú còi
+    public class AlarmSystem
+    {
+        public void ActivateAlarm(object sender, EventArgs e)
+        {
+            Console.WriteLine("!!! WARNING: Temperature is exceeded - Alarm Alarm Alarm !!!");
+        }
+    }
+    //Lớp cảnh báo thứ hai, gửi message đến kỹ sư vận hành
+    public class NotificationService
+    {
+        public void SendEmergencyAlert(object sender, EventArgs e)
+        {
+            Console.WriteLine("Send message to Engineer!");
+        }
+    }
+    //Lớp cảnh báo thứ 3, tự động làm mát
+    public class CoolingSystem
+    {
+        public void StartCooling(object sender, EventArgs e)
+        {
+            Console.WriteLine("Cooling System on...");
+        }
+    }
+
+    class Program
+
+    {   
+        
+        static void Main(string[] args)
+        {
+            var monitor = new TemperatureMonitor();
+            var alarm = new AlarmSystem();
+            var notification = new NotificationService();
+            var cooling = new CoolingSystem();
+            //Đăng ký Event 
+            monitor.TemperatureExceed += alarm.ActivateAlarm;
+            monitor.TemperatureExceed += notification.SendEmergencyAlert;
+            monitor.TemperatureExceed += cooling.StartCooling;
+            // Mô phỏng thay đổi nhiệt độ
+            int[] temperatures = { 80, 95, 110, 105, 90 };
+            foreach (var temp in temperatures)
+            {
+                monitor.CurrentTemperature = temp;
+                System.Threading.Thread.Sleep(1000); // Delay 1 giây
+            }
+
+        }                    
+    }
+}
