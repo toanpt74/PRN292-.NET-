@@ -276,3 +276,143 @@ namespace ThreadExample
         
     }
 }
+=====================================================================
+BAI TAP NHAN HAI MA TRAN:
+using System;
+using System.Drawing;
+using System.Threading;
+using System.Diagnostics;
+
+namespace ThreadExample
+{
+  
+    class Program
+    {
+        static int[,] matrixA; // Ma trận A
+        static int[,] matrixB; // Ma trận B
+        static int[,] resultMatrix; // Ma trận kết quả
+        static int numberOfThreads = 2; // Số luồng sử dụng
+        static int rowsA = 4, colsA = 4, rowsB = 4, colsB = 4;
+        static void Main(string[] args)
+        {
+            
+
+            if (colsA != rowsB)
+            {
+                Console.WriteLine("Khong the nhan hai ma tran nay.");
+                return;
+            }
+            Random random = new Random();
+            matrixA = new int[rowsA, colsA];
+            matrixB = new int[rowsB, colsB];
+            resultMatrix = new int[rowsA, colsB];
+
+            for (int i = 0; i < rowsA; i++)
+                for (int j = 0; j < colsA; j++)
+                    matrixA[i, j] = random.Next(1, 10);  
+
+            for (int i = 0; i < rowsB; i++)
+                for (int j = 0; j < colsB; j++)
+                    matrixB[i, j] = random.Next(1, 10);
+
+            Console.WriteLine("Start processing...");
+
+            Console.WriteLine("Matrix A:");
+            PrintMatrix(matrixA);
+
+            Console.WriteLine("Matrix B:");
+            PrintMatrix(matrixB);
+            Stopwatch sw = Stopwatch.StartNew();
+            //Nhân ma trận không sử dụng thread
+            //MultiplyMatrix();
+            //Nhân ma trận sử dụng thread
+            int partsize = rowsA / numberOfThreads;
+            Thread[] threads = new Thread[numberOfThreads];
+            for(int i=0; i<numberOfThreads; i++)
+            {
+                int startRow = i*partsize;
+                int endRow;
+                if (startRow + partsize < rowsA)
+                    endRow = startRow + partsize;
+                else endRow = rowsA;
+                
+                threads[i] = new Thread(()=>MultiplyPart(startRow, endRow));
+                threads[i].Start();
+            }    
+            foreach (Thread t in threads)
+            {
+                t.Join();
+            }
+            sw.Stop();
+            Console.WriteLine("Matrix Result:");
+            PrintMatrix(resultMatrix);
+           
+            Console.WriteLine("Total time is: " + sw.ElapsedMilliseconds + " ms");
+
+
+        }
+
+        static void MultiplyPart(int startRow, int endRow)
+        {
+            /*
+              Nhân hai ma trận: C[i,j] = A[i,k] * B[k,j]
+                
+            Code:
+            G/s ta có ma trận A(mxn), B(nxp) => Tích là ma trận Cmxp
+            for(int i=0; i<rowsA; i++ )
+            {                
+                for(int j=0; j<colsA;j++)
+                {
+                   int t=0;
+                   for(int k=0; k<rowsB; k++)
+                        t+= A[i,k]*B[k,j]                   
+                }
+                C[i,j] = t
+            }
+             */
+
+            
+            for(int i=startRow; i< endRow; i++)
+            {
+                for (int j = 0; j < colsA; j++)
+                {
+                    int t = 0;
+                    for (int k = 0; k < rowsB; k++)
+                        t += matrixA[i, k]*matrixB[k,j];
+                    resultMatrix[i, j] = t; 
+                }
+            }
+        }
+
+        static void PrintMatrix(int[,] matrix)
+        {
+            int rows = matrix.GetLength(0);
+            int cols = matrix.GetLength(1);
+
+            for (int i = 0; i < rows; i++)
+            {
+                for (int j = 0; j < cols; j++)
+                {
+                    Console.Write(matrix[i, j] + "\t");
+                }
+                Console.WriteLine();
+            }
+        }
+
+        static void MultiplyMatrix()
+        {
+            for (int i = 0; i < rowsA; i++)
+            {
+                for (int j = 0; j < colsA; j++)
+                {
+                    int t = 0;
+                    for (int k = 0; k < rowsB; k++)
+                        t += matrixA[i, k] * matrixB[k, j];
+                    resultMatrix[i, j] = t;
+                }
+            }
+        }
+
+
+    }
+}
