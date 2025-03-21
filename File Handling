@@ -117,6 +117,7 @@ namespace ThreadExample
 /////////////////////////////////////////////////////////////////////////////////////////
 Bài tập 2: Chương trình quản lý thông tin danh bạ dựa trên tệp json với các tính năng thêm mới, sửa, xóa dữ liệu
 
+
 using System;
 using System.IO;
 //using System.Text.Json;
@@ -192,9 +193,16 @@ class Program
         phone = Console.ReadLine();
         Contact contactInfo = new Contact(name, phone);
         string contactString = JsonConvert.SerializeObject(contactInfo, Formatting.Indented);
-        contactString += ",";
-        Console.WriteLine(contactString);
-        File.AppendAllText(filePath, contactString);                 
+       
+        if (File.Exists(filePath))
+        {
+            contactString = "," + contactString;
+            File.AppendAllText(filePath, contactString);
+        }
+        else
+        {
+            File.AppendAllText(filePath, contactString);
+        }                   
         Console.WriteLine("The contact have been added successful!!!");
        
     }
@@ -220,7 +228,7 @@ class Program
     {
         List<Contact> contacts = new List<Contact>();
         string jsonString = File.ReadAllText(filePath);
-        jsonString = jsonString.Substring(0, jsonString.Length - 1);
+        jsonString = jsonString.Substring(0, jsonString.Length);
         string contactString = "[" + jsonString + "]";
         contacts = JsonConvert.DeserializeObject<List<Contact>>(contactString);
         return contacts;
