@@ -115,9 +115,139 @@ namespace ThreadExample
     }
 }
 /////////////////////////////////////////////////////////////////////////////////////////
+
 Bài tập 2: Chương trình quản lý thông tin danh bạ dựa trên tệp json với các tính năng thêm mới, sửa, xóa dữ liệu
 
 
+using System;
+using System.IO;
+
+public class Contact
+{
+    string name;
+    string phone;
+    public Contact(string name, string phone)
+    {
+        this.Name = name;
+        this.Phone = phone;
+
+    }
+    public string Name { get => name; set => name = value; }
+    public string Phone { get => phone; set => phone = value; }
+}
+
+class Program
+{
+    static void Main(string[] args)
+    {
+        int chon;
+        string filePath = "contact.json";
+        while (true)
+        {
+            Console.WriteLine("Chuong trinh quan ly danh ba");
+            Console.WriteLine("1-Them so lien lac");
+            Console.WriteLine("2-Xoa so lien lac");
+            Console.WriteLine("3-Sua thong tin lien lac");
+            Console.WriteLine("4-Xem da nh ba");
+            Console.WriteLine("5-Tim kiem so dien thoai");
+            Console.WriteLine("0-Thoat");
+            Console.Write("Chon chuc nang (1-6), 0 -Thoat:");
+            chon = Convert.ToInt32(Console.ReadLine());
+            if (chon == 0) break;
+            switch (chon)
+            {
+                case 1:
+                    Console.WriteLine("add contact...");
+                    addContact(filePath);
+                    Console.ReadKey();
+                    Console.Clear();
+                    break;
+                case 2:
+                    Console.ReadKey();
+                    Console.Clear();
+                    break;
+                case 3:
+                    //EditContact(filePath);
+                    Console.ReadKey();
+                    Console.Clear();
+                    break;
+                case 4:
+                    display(filePath);
+                    Console.ReadKey();
+                    Console.Clear();
+                    break;
+            }
+        }
+    }
+
+    public static void addContact(string filePath)
+    {
+        string name;
+        string phone;
+        Console.WriteLine("Please enter the information of the contact:");
+        Console.Write("Enter name: ");
+        name = Console.ReadLine();
+        Console.Write("Enter phone:");
+        phone = Console.ReadLine();
+
+        string info = "";
+        info = name + " # " + phone ;
+         
+        using (StreamWriter sw = new StreamWriter(filePath, append:true))
+        {
+             sw.WriteLine(info);
+        }        
+        Console.WriteLine("The contact have been added successful!!!");
+    }
+
+    public static void display(string filePath)
+    {
+        if (File.Exists(filePath))
+        {
+
+            Console.WriteLine("------------------------------------------------");
+            Console.WriteLine("Contact info");
+            Console.WriteLine("{0,5}|{1,20}|{2,15}", "STT", "NAME", "PHONE");
+            List<Contact> contacts = getContacts(filePath);
+
+            
+            for(int i=0; i<contacts.Count; i++)
+            {                
+                Console.WriteLine("{0,5}|{1,20}|{2,15}", (i+1), contacts[i].Name, contacts[i].Phone);
+
+            }                            
+        }
+        else
+        {
+            Console.WriteLine("The file doesn't exist!!!");
+            return;
+        }       
+    }
+
+    public static List<Contact> getContacts(string filePath)
+    {
+        List<Contact> contacts = new List<Contact>();
+
+        if (File.Exists(filePath))
+        {
+            string[] lines = File.ReadAllLines(filePath);
+            for (int i = 0; i < lines.Length; i++)
+            {
+                string line = lines[i];
+                string[] info = line.Split(" # ");
+
+                Contact contact = new Contact(info[0], info[1]);
+                contacts.Add(contact);
+
+            }
+        }                        
+        return contacts;
+    }
+
+}
+
+-----------------------------------------------------------------------------------
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 using System;
 using System.IO;
 //using System.Text.Json;
