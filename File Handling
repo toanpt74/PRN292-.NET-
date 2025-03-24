@@ -119,8 +119,12 @@ namespace ThreadExample
 Bài tập 2: Chương trình quản lý thông tin danh bạ dựa trên tệp json với các tính năng thêm mới, sửa, xóa dữ liệu
 
 
+
 using System;
 using System.IO;
+using System.Numerics;
+using System.Xml;
+using System.Xml.Linq;
 
 public class Contact
 {
@@ -167,7 +171,7 @@ class Program
                     Console.Clear();
                     break;
                 case 3:
-                    //EditContact(filePath);
+                    EditContact(filePath);
                     Console.ReadKey();
                     Console.Clear();
                     break;
@@ -244,7 +248,52 @@ class Program
         return contacts;
     }
 
+    public static void EditContact(string filePath)
+    {
+                
+        int chon;
+        Console.WriteLine("Update the information of contact");
+        Console.Write("Please choice the contact to edit ");
+        List<Contact> contacts = getContacts(filePath);
+        Console.WriteLine();
+        while (true)
+        {
+            for (int i = 0; i < contacts.Count; i++)
+            {
+                Console.WriteLine((i + 1) + ". Name: " + contacts[i].Name + ", Phone: " + contacts[i].Phone);
+            }
+            Console.Write("Please choice the number (1-" + contacts.Count + ", 0 - Exit): ");
+            chon = Convert.ToInt32(Console.ReadLine());
+            if (chon == 0) break;
+            string newName, newPhone;
+            Console.Write("Enter New Name:");
+            newName = Console.ReadLine();
+            Console.Write("Enter New Phone: ");
+            newPhone = Console.ReadLine();
+            if (newName != "") contacts[chon - 1].Name = newName;
+            if (newPhone != "") contacts[chon - 1].Phone = newPhone;
+            WriteListToFile(filePath, contacts);
+            break;
+        }
+
+       
+
+    }
+    public static void WriteListToFile(string filePath, List<Contact> contacts)
+    {
+        string info = "";
+        for(int i=0; i<contacts.Count; i++)
+        {
+            info += contacts[i].Name + " # " + contacts[i].Phone + System.Environment.NewLine ;
+            
+        }
+        File.WriteAllText(filePath, info);
+        Console.WriteLine("The contact have been added successful!!!");
+        
+    }
+
 }
+
 
 -----------------------------------------------------------------------------------
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
