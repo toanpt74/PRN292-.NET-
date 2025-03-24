@@ -1,0 +1,163 @@
+
+using System;
+using System.IO;
+//using System.Text.Json;
+//using System.Text.Json.Serialization;
+using Newtonsoft.Json;
+class Program
+{
+    public class Contact
+    {
+        string name;
+        string phone;
+        public Contact(string name, string phone)
+        {
+            this.Name = name; 
+            this.Phone = phone;
+
+        }
+        public string Name { get => name; set => name = value; }
+        public string Phone { get => phone; set => phone = value; }
+    }
+    static void Main(string[] args)
+    {
+        int chon;
+        string filePath = "contact.json";
+        while (true)
+        {
+            Console.WriteLine("Chuong trinh quan ly danh ba");
+            Console.WriteLine("1-Them so lien lac");
+            Console.WriteLine("2-Xoa so lien lac");
+            Console.WriteLine("3-Sua thong tin lien lac");
+            Console.WriteLine("4-Xem da nh ba");
+            Console.WriteLine("5-Tim kiem so dien thoai");
+            Console.WriteLine("0-Thoat");
+            Console.Write("Chon chuc nang (1-6), 0 -Thoat:");
+            chon = Convert.ToInt32(Console.ReadLine());
+            if (chon == 0) break;
+            switch (chon)
+            {
+                case 1: Console.WriteLine("add contact...");
+                    addContact(filePath);
+                    Console.ReadKey();
+                    Console.Clear();
+                    break;
+                case 2:
+                    List<Contact> contacts = getContacts(filePath);
+                    contacts[0].Name = "Phan Thanh Toan";
+                    WriteListToFile(filePath, contacts);
+                    Console.ReadKey();
+                    Console.Clear();
+                    break;
+                case 3:
+                    EditContact(filePath);
+                    Console.ReadKey();
+                    Console.Clear();
+                    break;
+                case 4:  
+                    display(filePath);
+                    Console.ReadKey();
+                    Console.Clear();
+                    break;
+            }
+        }
+    }
+
+    public static void addContact(string filePath)
+    {
+        string name;
+        string phone;
+        Console.WriteLine("Please enter the information of the contact:");
+        Console.Write("Enter name: ");
+        name = Console.ReadLine();
+        Console.Write("Enter phone:");
+        phone = Console.ReadLine();
+        Contact contactInfo = new Contact(name, phone);
+        string contactString = JsonConvert.SerializeObject(contactInfo, Formatting.Indented);
+       
+        if (File.Exists(filePath))
+        {
+            contactString = "," + contactString;
+            File.AppendAllText(filePath, contactString);
+        }
+        else
+        {
+            File.AppendAllText(filePath, contactString);
+        }                   
+        Console.WriteLine("The contact have been added successful!!!");
+       
+    }
+    public static void display(string filePath)
+    {
+        string jsonString = File.ReadAllText(filePath);
+        string lastChar = jsonString.Substring(jsonString.Length-1,1);
+        if(lastChar == ",")
+            jsonString = jsonString.Substring(0, jsonString.Length - 1);
+
+        string contactString = "[" + jsonString + "]"; 
+        
+        Console.WriteLine("------------------------------------------------");
+        Console.WriteLine("Contact info");        
+        List<Contact> contacts = JsonConvert.DeserializeObject<List<Contact>>(contactString);
+        Console.WriteLine("{0,5}|{1,20}|{2,15}","STT","NAME","PHONE");
+        for(int i=0; i < contacts.Count; i++)
+        {
+            Console.WriteLine("{0,5}|{1,20}|{2,15}", (i+1), contacts[i].Name, contacts[i].Phone);
+        }
+    }
+    public static List<Contact> getContacts(string filePath)
+    {
+        List<Contact> contacts = new List<Contact>();
+        string jsonString = File.ReadAllText(filePath);
+        jsonString = jsonString.Substring(0, jsonString.Length);
+        string contactString = "[" + jsonString + "]";
+        contacts = JsonConvert.DeserializeObject<List<Contact>>(contactString);
+        return contacts;
+    }
+    public static void WriteListToFile(string filePath, List<Contact> contacts)
+    {
+        string jsonString = JsonConvert.SerializeObject(contacts, Formatting.Indented);
+        jsonString = jsonString.Substring(1, jsonString.Length - 2);
+        jsonString += ",";
+        File.WriteAllText(filePath, jsonString);
+    }
+
+    public static void EditContact(string filePath)
+    {
+        string info;
+        string newInfo;
+        string title;
+        Console.WriteLine("Update the information of contact");
+        int chon;
+        Console.WriteLine("1-Update the name of contact");
+        Console.WriteLine("2-Update the phone number");
+        Console.Write("Please choice (1 or 2):");
+        chon = Convert.ToInt32(Console.ReadLine());
+        if(chon <1 || chon > 2)
+        {
+            Console.WriteLine("Please choice 1 or 2");
+            return;
+        }
+        if (chon == 1) title = "Name: ";
+        else title = "Phone: ";
+        Console.Write("Please enter the " + title);
+        info = Console.ReadLine();
+        //Get contacts
+        List<Contact> contacts = getContacts(filePath);
+        for(int i=0; i<contacts.Count; i++)
+        {
+            if (contacts[i].Name == info || contacts[i].Phone == info)
+            {
+                Console.Write("Please enter the new " + title);
+                newInfo = Console.ReadLine();
+                if (chon == 1) contacts[i].Name = newInfo;
+                else if (chon == 2) contacts[i].Phone = newInfo;
+            }    
+        }    
+
+        WriteListToFile(filePath, contacts);
+        Console.WriteLine("Update information completed");
+
+    }
+
+}
