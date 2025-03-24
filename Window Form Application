@@ -1,0 +1,198 @@
+/*
+Xây dựng chương trình dạng window form quản lý thông tin danh bạ
+Sử dụng cấu trúc json để lưu trữ các thông tin 
+Chương trình cho phép thêm, sửa, xóa các thông tin trong danh bạ
+1. Khi vào hệ thống sẽ xuất hiện form đăng nhập
+2. Chương trình sử dụng tệp user.json để quản lý thông tin về người sử dụng
+3. File contact.json để quản lý thông tin danh bạ
+4. Chương trình có hai chức năng chính là
+	+ Quản lý người dùng
+	+ Quản lý thông tin danh bạ
+5. Thông tin danh bạ gồm: họ và tên, số điện thoại, địa chỉ liên lạc, giới tính, năm sinh	
+*/
+
+1. Tạo form login
+1.1. Tạo form
+1.1. Sử dụng label và textbox để thiết kế giao diện
+1.3. Đặt thuộc tính StartPossition là CenterScreen
+1.4 Thêm các code cho chương trình
+ private void tblCancel_Click(object sender, EventArgs e)
+ {
+     Application.Exit();
+ }
+ 
+ 1.4. Thêm một lớp user như sau:
+  public class user
+ {
+     private string username;
+     private string password;
+
+     public string Username { get => username; set => username = value; }
+     public string Password { get => password; set => password = value; }
+     public user(string username, string password)
+     {
+        this.Username = username;
+        this.Password = password;            
+     }
+ }
+ 1.5. Viết lệnh cho sự kiện của nút đăng nhập
+  private void btnLogin_Click(object sender, EventArgs e)
+ {
+     string filePath = "users.json";            
+     List<user> users = new List<user>();
+     string userName = txtUserName.Text;
+     string passWord = txtPassWord.Text;
+     if(userName.Trim()=="" || passWord.Trim() == "")
+     {
+         MessageBox.Show("Chưa nhập đầy đủ thông tin đăng nhập.");
+         txtUserName.Focus();
+         return;
+     }                        
+     if (!File.Exists(filePath))
+     {
+         MessageBox.Show("Không tồn tại tệp tin user.json");
+         return;
+     }
+
+     string jsonString = File.ReadAllText(filePath);
+     jsonString ="[" + jsonString + "]";
+     users = JsonConvert.DeserializeObject<List<user>>(jsonString);
+     for (int i = 0; i < users.Count; i++)
+     {
+         if (users[i].UserName == userName)
+         {
+             if (users[i].PassWord == passWord)
+             {
+                 MessageBox.Show("Đăng nhập thành công.");
+             }
+             else
+             {
+                 MessageBox.Show("Mật khẩu chưa chính xác");
+                 txtPassWord.Text = "";
+                 txtPassWord.Focus();
+                 return;
+             }
+         }
+         else
+         {
+             MessageBox.Show("Tên đăng nhập chưa chính xác.");
+             txtUserName.Text = "";
+             txtUserName.Focus();
+             return;
+         }
+
+     }
+ }
+ 
+ 1.6. Hãy thêm chức năng khi đăng nhập sai quá 3 lần thì hệ thống sẽ tự khóa form
+ 
+ 2. Xây dựng form thêm người sử dụng
+ + Yêu cầu form cho phép nhập các thông tin người dùng
+ + Thêm mới người sử dụng vào tệp user.json
+ + Kiểm tra xem người sử dụng đã tồn tại chưa.
+ Thêm hai hàm sau vào lớp user
+ public List<user> getUsers()
+{
+    string filePath = "users.json";
+    List<user> users = new List<user>();
+    if (File.Exists(filePath))
+    {
+        string jsonString = File.ReadAllText(filePath);
+        jsonString = "[" + jsonString + "]";
+        users = JsonConvert.DeserializeObject<List<user>>(jsonString);  
+    }
+    return users;
+}
+
+public bool checkUserExist(string uname)
+{
+    bool check = false;
+    List<user> users = getUsers();
+    if (users.Count <= 0) {
+        return true;
+    }
+    for(int i=0; i<users.Count; i++)
+    {
+        if (users[i].UserName.Trim() == uname.Trim())
+        {
+            check = true;
+            break;
+        }
+    }
+    return check;
+}
++ Viết code cho sự kiện click của button btnAdd_Click
+private void btnAdd_Click(object sender, EventArgs e)
+{
+    string filePath = "users.json";
+    string userName = txtUserName.Text.Trim();
+    string passWord = txtPassWord.Text.Trim();
+    if (userName == "")
+    {
+        MessageBox.Show("Tên đăng nhập không được để trống.");
+        txtUserName.Focus();
+        return;
+    }
+    if (passWord == "")
+    {
+        MessageBox.Show("Mật khẩu nhập không được để trống.");
+        txtPassWord.Focus();
+        return;
+    }
+
+    user u1 = new user();
+    bool check = u1.checkUserExist(userName);
+    if (check)
+    {
+        MessageBox.Show("Tên đăng nhập " + userName +" đã có trong hệ thống. Hãy nhập một tên đăng nhập khác.");
+        txtUserName.Text = "";
+        txtUserName.Focus();
+        return;
+
+    }
+    List<user> users = new List<user>();
+    users = u1.getUsers();
+    user u2 = new user(userName, passWord);
+    users.Add(u2);
+    string jsonString = JsonConvert.SerializeObject(users);
+    jsonString = jsonString.Substring(1, jsonString.Length - 2);
+    
+    File.WriteAllText(filePath, jsonString);
+    MessageBox.Show("Người dùng " + userName +" đã được thêm vào hệ thống.");
+}
+
+3. Xây dựng form hiển thị thông tin
+3.1. Tạo form
+3.2. Viết thủ tục get data
+
+ private void getData()
+ {
+     List<user> users = new List<user>();
+     user u1 = new user();
+     users = u1.getUsers();
+     if(users.Count <= 0)
+     {
+         MessageBox.Show("Không có người dùng nào trong hệ thống.");
+         return;
+     }
+     DataTable dt = new DataTable();
+     dt.Columns.Add("UserName", typeof(string));
+     dt.Columns.Add("PassWord", typeof(string));
+
+    
+
+
+     for (int i=0; i<users.Count; i++)
+     {
+         DataRow dr = dt.NewRow();
+         dr["UserName"] = users[i].UserName;
+         dr["PassWord"] = users[i].PassWord;
+         dt.Rows.Add(dr);
+     }                                  
+     gvwUsers.DataSource = dt;
+     gvwUsers.Columns[0].HeaderText = "Tên đăng nhập";
+     gvwUsers.Columns[0].Width = 200;
+     gvwUsers.Columns[1].HeaderText = "Mật khẩu";
+     gvwUsers.Columns[1].Width = 200;
+ }
+ 
