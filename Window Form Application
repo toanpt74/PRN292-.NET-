@@ -196,3 +196,103 @@ private void btnAdd_Click(object sender, EventArgs e)
      gvwUsers.Columns[1].Width = 200;
  }
  
+ ///////////////////
+ 4. Tạo form hiển thị thông tin về contact
+ 4.1 Thiết kế form sử dụng data gridview
+ 4.2. Xây dựng thêm lớp contact như sau:
+ 
+  public class contact
+ {
+     private string name;
+     private string phone;
+     private string address;
+     private int gender;
+     private DateTime birthdate;
+
+     public string Name { get; set; }
+     public string Phone { get; set; }
+     public string Address { get; set; }
+     public int Gender { get; set; }
+     public DateTime BirthDate { get; set; }
+     public contact() { }
+     public contact(string name, string phone, string address, int gender, DateTime birthdate)
+     {
+         this.Name = name;
+         this.Phone = phone;
+         this.Address = address;
+         this.Gender = gender;
+         this.BirthDate = birthdate;            
+     }
+     public List<contact> getContacts()
+     {
+         string filePath = "contact.json";
+         List<contact> contacts = new List<contact>();
+         if (!File.Exists(filePath))
+         {
+             MessageBox.Show("Không có file " + filePath);
+             return null;
+         }
+
+         string jsonString = File.ReadAllText(filePath);
+         jsonString = "[" + jsonString + "]";
+         contacts = JsonConvert.DeserializeObject<List<contact>>(jsonString);
+         return contacts;
+     }
+ }
+ 4.3. Viết thủ tục getdata như sau:
+  private void LoadData()
+ {
+     contact c1 = new contact();
+     List<contact> contacts = c1.getContacts();
+     gvwContact.DataSource = contacts;
+     setupGrid(gvwContact);
+ }
+ private void setupGrid(DataGridView gvw)
+ {
+     gvw.Columns[0].Width = 120;
+     gvw.Columns[1].Width = 80;
+     gvw.Columns[2].Width = 300;
+     gvw.Columns[3].Width = 100;
+     gvw.Columns[4].Width = 100;
+ }
+ 
+  private void frmContact_Load(object sender, EventArgs e)
+ {
+     LoadData();
+ }
+ 
+ 4.4. Tạo thêm hai nút Next và Prev, thêm code cho hai nút này
+ + Thêm label đặt tên là lblStatus
+ + Tạo biến tổng thể
+  static int rowIndex = 0;
+  static List<contact> contacts  ;
+Code cho sự kiện click của các nút bấm
+ private void btnNext_Click(object sender, EventArgs e)
+ {
+     int n = gvwContact.Rows.Count;
+     if (rowIndex >=0 && rowIndex < n)
+     {
+         rowIndex = ++rowIndex % n;
+         gvwContact.Rows[rowIndex].Selected = true;
+     }
+     else rowIndex = 0;
+     lblStatus.Text = "Current record: " + rowIndex + " Name: " + contacts[rowIndex].Name ;
+ }
+
+ private void btnPrev_Click(object sender, EventArgs e)
+ {
+     int n = gvwContact.Rows.Count;
+     if (rowIndex > 0 && rowIndex < n)
+     {
+         rowIndex = --rowIndex % n;
+         gvwContact.Rows[rowIndex].Selected = true;
+     }
+     else
+     {
+         rowIndex = n - 1;
+         gvwContact.Rows[rowIndex].Selected = true;
+     }
+     lblStatus.Text = "Current record: " + rowIndex + " Name: " + contacts[rowIndex].Name;
+
+ } 
+ 
