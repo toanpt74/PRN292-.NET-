@@ -1,0 +1,18 @@
+Xây dựng chương trình dạng window form quản lý thông tin danh bạ
+Sử dụng cấu trúc json để lưu trữ các thông tin 
+Chương trình cho phép thêm, sửa, xóa các thông tin trong danh bạ
+1. Khi vào hệ thống sẽ xuất hiện form đăng nhập
+2. Sử dụng DataBase SQL Server
+3. Chương trình có hai chức năng chính là
+	+ Quản lý người dùng
+	+ Quản lý thông tin danh bạ
+4. Thông tin danh bạ gồm: họ và tên, số điện thoại, địa chỉ liên lạc, giới tính, năm sinh
+	
+Sử dụng xâu kết nối database
+
+"ConnectionStrings": {
+  "cnn": "Data Source=107.125.149.68;Initial Catalog=DVM;Persist Security Info=True;User ID=sa;Password=sdv2020@;Min Pool Size=2;Max Pool Size=25;Connect Timeout=30;"
+}
+
+Get connection:
+string strconnection = ConfigurationManager.ConnectionStrings["cnn"].ToString();
