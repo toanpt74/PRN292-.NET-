@@ -296,3 +296,219 @@ Code cho sự kiện click của các nút bấm
 
  } 
  
+  private void tbnFirst_Click(object sender, EventArgs e)
+ {
+     rowIndex = 0;
+     gvwContact.Rows[rowIndex].Selected = true;
+     lblStatus.Text = "Current record: " + rowIndex + " Name: " + contacts[rowIndex].Name;
+ }
+
+ private void tbnLast_Click(object sender, EventArgs e)
+ {
+     rowIndex=gvwContact.Rows.Count-1;
+     gvwContact.Rows[rowIndex].Selected = true;
+     lblStatus.Text = "Current record: " + rowIndex + " Name: " + contacts[rowIndex].Name;
+
+ }
+ 5. Thực hiện thao tác thêm dữ liệu contact
+ 5.1. Tạo form addContact
+ 5.2. Thiết kế giao diện
+ 5.3. Thêm delegate và event vào lớp này: 
+  public delegate void DataUpdatedHandler(string data);
+ public event DataUpdatedHandler DataUpdated;
+ Hai cái này được sử dụng để truyền thông tin giữa hai form
+ 5.4. Viết lệnh cho sự kiện save data
+ 
+  private void tbnSave_Click(object sender, EventArgs e)
+ {
+     string filePath = "contact.json";
+     string name = txtName.Text.Trim();
+     string phone = txtPhone.Text.Trim();
+     string address = txtAddress.Text.Trim();
+     int gender = 0;
+     if (rdoNam.Checked) gender = 1;
+     else if (rdoNu.Checked) gender = 0;
+     DateTime dateTime = dateBithDate.Value;
+
+     string strBirthDate = dateTime.ToString("MM/dd/yyyy");
+     string message = "";
+      
+
+     string msg = "";
+     if (name == "") msg += "Họ tên không được để trống." + System.Environment.NewLine;
+     if (phone == "") msg += "Số điện thoại không được để trống." + System.Environment.NewLine;
+     if(address=="")msg+= "Địa chỉ không được để trống" + System.Environment.NewLine;
+
+     if (msg != "")
+     {
+         MessageBox.Show(msg);
+         txtName.Focus();
+         if (DataUpdated != null) DataUpdated.Invoke("Lỗi cập nhật dữ liệu");
+         return;
+     }
+     else
+     {
+         contact c1 = new contact(name,phone, address,gender, strBirthDate);
+         string jsonString = JsonConvert.SerializeObject(c1);
+         message = jsonString;
+         if (!File.Exists(filePath))
+         {
+             message = "Không có file " + filePath;
+             if (DataUpdated != null) DataUpdated.Invoke(message);
+             return;
+         }
+
+         string str = File.ReadAllText(filePath);
+         if(str.Length > 0)
+         {
+             
+             jsonString = "," + jsonString;
+         }
+         //Cập nhật dữ liệu vào file
+          File.AppendAllText(filePath, jsonString);
+          if (DataUpdated != null) DataUpdated.Invoke(message);
+     }
+     this.Close();
+ }
+ 5.5. Quay lại form frmContact để đăng kí sự kiện
+  private void btnAdd_Click(object sender, EventArgs e)
+ {
+     frmAddContact frmAddContact = new frmAddContact();
+     frmAddContact.MdiParent = frmMain.ActiveForm;
+     frmAddContact.StartPosition = FormStartPosition.Manual;
+     frmAddContact.DataUpdated += (data)=> {
+         string jsonString = data;
+         contact c1 = JsonConvert.DeserializeObject<contact>(jsonString);
+         contacts.Add(c1);
+         gvwContact.DataSource = null;
+         gvwContact.DataSource = contacts;
+         lblStatus.Text = "Cập nhật dữ liệu thành công."; 
+     };
+
+     frmAddContact.Show();
+ }
+ 
+ 6. Thao tác sửa dữ liệu
+ 6.1 Thiết kế form (trùng với form addContact)
+ 6.2. Thêm sự kiện click chuột cho nút edit trong form contact
+  private void btnEdit_Click(object sender, EventArgs e)
+ {
+     if (rowIndex >= 0 && rowIndex <= contacts.Count)
+     {
+         contact c1 = contacts[rowIndex];
+         frmAddContact frmAddContact = new frmAddContact(c1, contacts, "Edit", rowIndex);
+         frmAddContact.MdiParent = frmMain.ActiveForm;
+         frmAddContact.StartPosition = FormStartPosition.Manual;
+
+         frmAddContact.DataAdded += (data) =>
+         {
+             LoadData();
+             lblStatus.Text = "Cập nhật dữ liệu thành công.";
+         };
+
+         frmAddContact.Show();
+     }
+ }
+ 
+ 6.3. Trong form addContact thêm các sự kiện và biến
+  public delegate void DataAddedHandler(string data);
+ public event DataAddedHandler DataAdded;
+ public static contact editContact;
+ public static List<contact> contacts;
+ public static string btnAddEdit ="";
+ public static int rowIndex = 0;
+ 
+  public frmAddContact(contact c1, List<contact> lstcontact, string btnAdd, int row_edit)
+ {
+     InitializeComponent();
+     editContact = c1;
+     contacts = lstcontact;
+     btnAddEdit = btnAdd;
+     rowIndex = row_edit;
+ }
+ private void loadData()
+ {
+     txtName.Text = editContact.Name;
+     txtPhone.Text = editContact.Phone;
+     txtAddress.Text = editContact.Address;
+     int gender =Convert.ToInt32(editContact.Gender);
+     if(gender==1) rdoNam.Checked = true;
+     else if(gender==0) rdoNu.Checked = true;
+     dateBithDate.Value =Convert.ToDateTime(editContact.BirthDate);
+ }
+ 
+  private void tbnSave_Click(object sender, EventArgs e)
+ {
+     string filePath = "contact.json";
+     string name = txtName.Text.Trim();
+     string phone = txtPhone.Text.Trim();
+     string address = txtAddress.Text.Trim();
+     int gender = 0;
+     if (rdoNam.Checked) gender = 1;
+     else if (rdoNu.Checked) gender = 0;
+     DateTime dateTime = dateBithDate.Value;
+
+     string strBirthDate = dateTime.ToString("MM/dd/yyyy");
+     string message = "";
+      
+
+     string msg = "";
+     if (name == "") msg += "Họ tên không được để trống." + System.Environment.NewLine;
+     if (phone == "") msg += "Số điện thoại không được để trống." + System.Environment.NewLine;
+     if(address=="")msg+= "Địa chỉ không được để trống" + System.Environment.NewLine;
+
+     if (msg != "")
+     {
+         MessageBox.Show(msg);
+         txtName.Focus();
+         if (DataAdded != null) DataAdded.Invoke("Lỗi cập nhật dữ liệu");
+         
+     }
+     else
+     {
+         contact c1 = new contact(name,phone, address,gender, strBirthDate);
+         string jsonString = JsonConvert.SerializeObject(c1);
+         message = jsonString;
+         if (!File.Exists(filePath))
+         {
+             message = "Không có file " + filePath;
+             if (DataAdded != null) DataAdded.Invoke("1");
+             return;
+         }
+
+         string str = File.ReadAllText(filePath);
+         if(str.Length > 0)
+         {
+             
+             jsonString = "," + jsonString;
+         }
+         //Cập nhật dữ liệu vào file
+         if (btnAddEdit == "Edit")
+         {
+             if(rowIndex>=0 && rowIndex <= contacts.Count)
+             {
+                 contact c2 = new contact(name, phone,address, gender, strBirthDate);
+                 contacts[rowIndex] = c2;
+                 jsonString = JsonConvert.SerializeObject(contacts, Formatting.Indented);
+                 jsonString = jsonString.Substring(1, jsonString.Length - 2);                        
+                 File.WriteAllText(filePath, jsonString);
+                 if (DataAdded != null) DataAdded.Invoke("2");
+             }                    
+         }
+         else
+         {
+             File.AppendAllText(filePath, jsonString);
+             if (DataAdded != null) DataAdded.Invoke(message);
+         }
+         
+     }
+     this.Close();
+ }
+ 
+   private void frmAddContact_Load(object sender, EventArgs e)
+  {
+      if(btnAddEdit=="Edit")
+          loadData();
+  }
+ 
+ 
