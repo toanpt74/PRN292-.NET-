@@ -1111,7 +1111,23 @@ public ActionResult Update(string data)
 11.2. Thêm các hàm sau vào model (VehicleType.cs)
  public bool Update(dynamic row)
  {
-     
+      
+     try
+     {
+         cmd.Connection.Open();
+         iRowEffected = cmd.ExecuteNonQuery();
+         cmd.Connection.Close();
+         cmd.Connection.Dispose();
+         cmd.Dispose();
+         msg = "100";
+
+     }
+     catch (Exception e1)
+     {
+         msg = e1.Message;
+         return false;
+     }
+     return (msg == "100" ? true : false);   
  }
 
   
