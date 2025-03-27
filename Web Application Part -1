@@ -1,1 +1,1194 @@
-123
+1> Tạo một ứng dụng web
+ASP.NET Core Web App(Model-View-Controller)
+
+2. Tạo 3 thư mục là: Views, Controllers, Models
+3. Copy tất cả các thư viện vào thư mục wwwroot
+4. Chỉnh sửa tệp Program.cs
+
+ 
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using Microsoft.Extensions.FileProviders;
+namespace DeviceManagement
+{
+    public class Program
+    {
+
+        public static void Main(string[] args)
+        {
+            var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
+            .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            IConfiguration cf = builder.Build();
+
+            // Info.strcnn = cf.GetValue<string>("ConnectionStrings:cnn");
+
+
+
+            CreateHostBuilder(args).Build().Run();
+
+        }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureWebHostDefaults(webBuilder =>
+                {
+                    webBuilder.UseStartup<Startup>();
+                });
+    }
+}
+
+-------------------------------------------
+5. Thêm tệp tin Startup.cs
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using WEBCPA.Models;
+using Microsoft.AspNetCore.StaticFiles;
+ 
+ 
+
+namespace DeviceManagement
+{
+    public class Startup
+    {
+       
+        public Startup(IConfiguration configuration, IHostEnvironment env)
+        {
+            Configuration = configuration;
+
+            var builder = new ConfigurationBuilder()
+                .SetBasePath(env.ContentRootPath)
+                .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+                .AddEnvironmentVariables();
+            Configuration = builder.Build();
+
+        }
+
+        public IConfiguration Configuration { get; }
+
+        // This method gets called by the runtime. Use this method to add services to the container.
+        public void ConfigureServices(IServiceCollection services)
+        {
+            services.AddMvcCore();
+            services.AddControllersWithViews();
+            services.AddMvc();
+            services.AddDistributedMemoryCache();
+
+            services.AddSession();
+            services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            string connectionString = Configuration["ConnectionStrings:cnn"];
+            //  this is how a class inheriting dbcontext can be called
+            //  services.AddDbContext<DbRepository>(options => options.UseSqlServer(connectionString));
+            //  or call IDbRepository as a custom service
+            //services.AddScoped<IDbRepository>(repository => new DbRepository(connectionString));
+
+            services.AddScoped<IDbRepository>(repository => new DbRepository(connectionString));
+
+            services.AddOptions();
+            services.Configure<Global>(Configuration);
+
+            
+
+
+        }
+
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        {
+            if (env.IsDevelopment())
+            {
+                app.UseDeveloperExceptionPage();
+            }
+            else
+            {
+                app.UseExceptionHandler("/Home/Error");
+                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
+                app.UseHsts();
+            }
+            //app.UseDetection();
+            app.UseHttpsRedirection();
+            app.UseStaticFiles();
+
+            app.UseStatusCodePages();
+            
+
+            app.UseRouting();
+            
+           
+
+            app.UseAuthorization();
+            app.UseSession();
+
+            var provider = new FileExtensionContentTypeProvider();
+            
+
+            app.UseEndpoints(endpoints =>
+            {
+                               
+                endpoints.MapAreaControllerRoute(
+                   name: "WEBCPA",
+                   areaName: "WEBCPA",
+                   pattern: "{controller=HomeAdmin}/{action=Index}");
+
+                /*
+
+                 endpoints.MapControllerRoute(
+                     name: "areaRoute",
+                     pattern: "{area:exists}/{controller}/{action}/{id?}"
+                 );  */
+
+                
+             
+                endpoints.MapControllerRoute(
+                    name: "default",
+                    pattern: "{controller=Home}/{action=Index}/{id?}"); 
+                 
+            });
+
+           
+            AppDomain.CurrentDomain.SetData("ContentRootPath", env.ContentRootPath); 
+            AppDomain.CurrentDomain.SetData("WebRootPath", env.WebRootPath);
+
+            
+
+        }
+    }
+}
+
+--------------------------------------------------------------------------------
+6. Trong thư mục Views/Share thêm tệp tin main_layout
+
+
+@using Microsoft.AspNetCore.Html
+
+@{
+
+    var path = (string)AppDomain.CurrentDomain.GetData("WebRootPath");
+
+    HtmlString menu = (HtmlString)ViewBag.UserMenu;// Info.menu;
+    string user_fullname = ViewBag.user_fullname;
+    string userUid = ViewBag.userUid;
+    string userAvata = ViewBag.userAvata;
+ 
+
+    string common_script_path = path + "\\Scripts\\common.js";
+    
+    string script = File.ReadAllText(common_script_path);
+    
+    
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Title</title>
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Tell the browser to be responsive to screen width -->
+    <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+
+    <link rel="shortcut icon" href="favicon.ico"/>
+    <link href="~/Styles/googlefont.css" rel="stylesheet" />   
+    <link rel="stylesheet" href="~/Styles/bootstrap/bootstrap.min.css">
+    <link rel="stylesheet" href="~/Styles/style.css">
+
+
+
+    <link rel="stylesheet" href="~/Styles/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="~/Styles/Ionicons/css/ionicons.min.css">
+    <link rel="stylesheet" href="~/Styles/bootstrap/dataTables.bootstrap.min.css">
+    <link rel="stylesheet" href="~/Styles/skin.css" />
+
+
+
+
+    <script src="~/Scripts/jquery.min.js"></script>
+    <script src="~/Scripts/jquery-ui.min.js"></script>
+
+
+
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/jquery.slimscroll.min.js"></script>
+    <script src="~/Scripts/validator.min.js"></script>
+  
+    <script src="~/Scripts/buttons.print.min.js"></script>
+    <script src="~/Scripts/xlsx.core.min.js"></script>
+    <script src="~/Scripts/xls.core.min.js"></script>
+
+    <script src="~/Scripts/select2.min.js"></script>
+    <link href="~/Styles/select2.min.css" rel="stylesheet" />
+
+
+    <link href="~/kendoui/styles/kendo.common.min.css" rel="stylesheet">
+
+    <link href="~/kendoui/styles/kendo.default.min.css" rel="stylesheet">
+    <link href="~/kendoui/styles/kendo.default.mobile.min.css" rel="stylesheet">
+
+    <link href="~/Styles/common.css" rel="stylesheet" />
+    
+
+    <script src="~/Scripts/jquery.number.min.js"></script>
+    <script src="~/Scripts/jquery.fullscreen.min.js"></script>
+    <script src="~/KendoUI/js/kendo.all.min.js"></script>
+
+    <script>
+        @Html.Raw(script)
+
+    </script>
+
+</head>
+
+<body class="hold-transition skin-green-light sidebar-mini fixed">
+
+
+    <div class="wrapper">
+
+        <header class="main-header">
+            <!-- Logo -->
+            <a href="admin" class="logo">
+                <!-- mini logo for sidebar mini 50x50 pixels -->
+                <span class="logo-mini">
+                    <img src="~/images/logofit.png" alt="Về trang chủ | ATC Group" class="home_logo_small" />
+                </span>
+                <!-- logo for regular state and mobile devices -->
+                <span class="logo-lg">
+                    <img src="~/images/logofit.png" alt="Về trang chủ | ATC Group" class="home_logo" />
+                </span>
+            </a>
+            <!-- Header Navbar: style can be found in header.less -->
+            <nav class="navbar navbar-static-top">
+                <!-- Sidebar toggle button-->
+                <a href="#" class="sidebar-toggle" data-toggle="push-menu" role="button">
+                    <span class="sr-only">Toggle navigation</span>
+                </a>
+                <div class="navbar-default">
+                </div>
+
+                <div class="navbar-custom-menu">
+                    <ul class="nav navbar-nav">
+
+                        <li class="hidden-sm hidden-xs" style="padding-top:10px;display:none">
+                            <select id="cbbmain_chinhanh" style="padding:3px;max-width: 150px;"></select>
+
+                        </li>
+
+                        <!-- User Account: style can be found in dropdown.less -->
+                        <li class="dropdown user user-menu">
+                            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+                                <img src="@userAvata" class="user-image" alt="User Image">
+                                <span class="hidden-xs">@userUid</span>
+                            </a>
+                            <ul class="dropdown-menu">
+                                <!-- User image -->
+                                <li class="user-header">
+                                    <img src="@userAvata" class="img-circle" alt="User Image">
+                                    <p>
+                                        @user_fullname
+                                        <small>Member since 2024</small>
+                                    </p>
+                                </li>
+
+
+                                <li class="user-footer" style="background-color:#3c8dbc;border-top:1px solid #fff;">
+                                    <div class="pull-left">
+                                        <a href="#" id="cmdchangepassword" class="btn btn-default btn-flat">Đổi mật khẩu</a>
+                                    </div>
+                                    <div class="pull-right">
+                                        <a href="/Logout" class="btn btn-default btn-flat">Thoát</a>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                        <!-- Control Sidebar Toggle Button -->
+                        <li>
+                            <a href="#" data-toggle="control-sidebar"><i class="fa fa-gears"></i></a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+
+        <!-- Left side column. contains the logo and sidebar -->
+        <aside class="main-sidebar">
+            <!-- sidebar: style can be found in sidebar.less -->
+            <section class="sidebar">
+                <!-- Sidebar user panel -->
+                <!-- /.search form -->
+                <!-- sidebar menu: : style can be found in sidebar.less -->
+                <ul class="sidebar-menu" data-widget="tree">
+                    @menu
+                </ul>
+            </section>
+            <!-- /.sidebar -->
+        </aside>
+
+        <!-- Content Wrapper. Contains page content -->
+        <div class="content-wrapper">
+            <!-- Content Header (Page header) -->
+            <section class="content-header">
+                <h1 style="text-transform:uppercase;">
+                    Example Title                    
+                </h1>
+
+                <ol class="hidden-sm hidden-xs breadcrumb">
+
+                    <li id="liInternetAvailable" class="internet_online"><i class="fa fa-cloud-upload"></i></li>
+                    <li><a href="~/Home"><i class="fa fa-dashboard"></i> Home</a></li>
+                    <li class="active"><a href="~/@ViewBag.ControllerName">@ViewBag.Function_Title_Short</a></li>
+                </ol>
+            </section>
+
+            <!-- Main content -->
+            <section class="content">
+                @RenderBody()
+            </section>
+            <!-- /.content -->
+        </div>
+        <!-- /.content-wrapper -->
+        <footer class="main-footer">
+            <div class="pull-right hidden-xs">
+                <b>Version</b> @Html.Raw(ViewBag.Version)
+            </div>
+            <strong>Copy right by: Phan Thanh Toan</strong>           
+        </footer>
+
+        <!-- Control Sidebar -->
+        <aside class="control-sidebar control-sidebar-light">
+            <!-- Create the tabs -->
+            <ul class="nav nav-tabs nav-justified control-sidebar-tabs">
+                <li><a href="#control-sidebar-home-tab" data-toggle="tab"><i class="fa fa-home"></i></a></li>
+                <li><a href="#control-sidebar-settings-tab" data-toggle="tab"><i class="fa fa-gears"></i></a></li>
+            </ul>
+            <!-- Tab panes -->
+            <div class="tab-content">
+                <!-- Home tab content -->
+                <div class="tab-pane" id="control-sidebar-home-tab">
+                </div>
+                <!-- /.tab-pane -->
+                <!-- Stats tab content -->
+                <div class="tab-pane" id="control-sidebar-stats-tab">Stats Tab Content</div>
+                <!-- /.tab-pane -->
+                <!-- Settings tab content -->
+                <div class="tab-pane" id="control-sidebar-settings-tab">
+                </div>
+                <!-- /.tab-pane -->
+            </div>
+        </aside>
+        <!-- /.control-sidebar -->
+        <!-- Add the sidebar's background. This div must be placed
+             immediately after the control sidebar -->
+        <div class="control-sidebar-bg"></div>
+    </div>
+       
+</body>
+
+</html>
+-------------------------------------------------------------------------
+7. Trong Views/Home chỉnh sửa tệp tin index như sau:
+@{
+    ViewData["Title"] = "Home Page";
+    Layout = "~/Views/Shared/main_layout.cshtml";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+</div>
+
+-------------------------------------
+8. Mở tệp HomeController trong thư mục Controller thực hiện thêm các đoạn mã sau
+public class HomeController : Controller
+{
+    private readonly ILogger<HomeController> _logger;
+
+    
+
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ISession _session;
+    
+    private HtmlString menu;
+    public static string strcnn = "";
+
+    public HomeController(ILogger<HomeController> logger)
+    {
+        _logger = logger;
+    }
+
+    public IActionResult Index()
+    {
+        string s = "{<li class='treeview menu-open'><a href = '/SubMenus/' ><i class='mnu_parent glyphicon glyphicon-globe'></i> <span> Thông tin cấu hình</span><span class='pull-right-container'><i class='fa fa-angle-left pull-right'></i>              </span>          </a>  <ul class='treeview-menu' style='display:block'>              <li><a href = '/CamInfo/1113' ><i  class='mnu_child fa fa-camera'></i> Thông tin Camera</a></li>             <li><a href = '/ServerInfo/1083' ><i  class='mnu_child fa fa-laptop'></i> Thông tin máy chủ</a></li>             <li><a href = '/ServerDataInfo/1114' ><i  class='mnu_child fa fa-database'></i> Thông tin máy chủ lưu trữ</a></li>             <li><a href = '/ClientInfo/1118' ><i  class='mnu_child glyphicon glyphicon-blackboard'></i> Thông tin máy client</a></li>             <li><a href = '/Socketfeedback/1115' ><i  class='mnu_child fa fa-code-fork'></i> Thông tin Socket feedback</a></li>             <li><a href = '/Socketdata/1116' ><i  class='mnu_child fa fa-asl-interpreting'></i> Thông tin Socket data interface</a></li>             <li><a href = '/DeviceConfig/1117' ><i  class='mnu_child fa fa-asl-interpreting'></i> Device config</a></li>             <li><a href = '/AIconfig/1082' ><i  class='mnu_child fa fa-user-times'></i> AI config</a></li>  </ul><li class='treeview menu-open'>          <a href = '/SubMenus/' >              <i class='mnu_parent fa fa-clone'></i> <span> Quản trị danh mục</span>              <span class='pull-right-container'>                  <i class='fa fa-angle-left pull-right'></i>              </span>          </a>  <ul class='treeview-menu' style='display:block'>              <li><a href = '/ChucVu/1112' ><i  class='mnu_child fa fa-sliders'></i> Danh mục cấp bậc</a></li>             <li><a href = '/PhongBan/1064' ><i  class='mnu_child glyphicon glyphicon-home'></i> Danh sách đơn vị</a></li>  </ul><li class='treeview menu-open'>          <a href = '/SubMenus/' >              <i class='mnu_parent '></i> <span> Quản lý phương tiện</span>              <span class='pull-right-container'>                  <i class='fa fa-angle-left pull-right'></i>              </span>          </a>  <ul class='treeview-menu' style='display:block'>              <li><a href = '/VehicleType/1120' ><i  class='mnu_child fa fa-automobile'></i> Loại phương tiện</a></li>             <li><a href = '/Vehicle/1121' ><i  class='mnu_child fa fa-automobile'></i> Danh mục phương tiện</a></li>  </ul><li class='treeview menu-open'>          <a href = '/SubMenus/' >              <i class='mnu_parent fa fa-mortar-board'></i> <span> Nghiệp vụ</span>              <span class='pull-right-container'>                  <i class='fa fa-angle-left pull-right'></i>              </span>          </a>  <ul class='treeview-menu' style='display:block'>              <li><a href = '/ClientCam/1098' ><i  class='mnu_child fa fa-id-card'></i> Phân quyền sử dụng Camera</a></li>             <li><a href = '/BlacklistObjectFaceInfo/1099' ><i  class='mnu_child fa fa-book'></i> Black list Object Face Info</a></li>  </ul><li class='treeview menu-open'>          <a href = '/SubMenus/System' >              <i class='mnu_parent fa fa-gears'></i> <span> Hệ thống</span>              <span class='pull-right-container'>                  <i class='fa fa-angle-left pull-right'></i>              </span>          </a>  <ul class='treeview-menu' style='display:block'>              <li><a href = '/Menu/31' ><i  class='mnu_child fa fa-book'></i> Menu</a></li>             <li><a href = '/Users/2' ><i  class='mnu_child fa fa-user'></i> Users management</a></li>             <li><a href = '/PermissionGroups/38' ><i  class='mnu_child fa fa-users'></i> Group users</a></li>             <li><a href = '/Logout/4' ><i  class='mnu_child fa fa-power-off'></i> Logout</a></li>             <li><a href = '/Log/27' ><i  class='mnu_child fa fa-history'></i> History</a></li>  </ul></li>}";
+        menu = new HtmlString(s);
+        ViewBag.UserMenu = menu;
+        ViewBag.user_fullname = "Phan Thanh Toan";
+        ViewBag.userUid = "pttoan";
+        ViewBag.userAvata = "images/pttoan_2.jpg";
+        return View();
+    }
+
+    public IActionResult Privacy()
+    {
+        return View();
+    }
+
+    [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
+    public IActionResult Error()
+    {
+        return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
+    }
+}
+--------------------------------------------------------------------------------------------
+8. Sửa tệp appsettings.json để tạo kết nối tới DB
+{
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*",
+  "ConnectionStrings": {
+    "cnn": "Data Source=107.125.149.68;Initial Catalog=DVM;Persist Security Info=True;User ID=sa;Password=sdv2020@;Min Pool Size=2;Max Pool Size=25;Connect Timeout=30;"
+  }
+
+}
+
+---------------------------------------------------------------------------
+9. Thêm tệp Global.cs trong Models
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics;
+namespace WEBCPA.Models
+{
+    public class Global
+    {
+        public static HtmlString getMenu()
+        {
+            string s = "{<li class='treeview menu-open'><a href = '/SubMenus/' ><i class='mnu_parent glyphicon glyphicon-globe'></i> <span> Thông tin cấu hình</span><span class='pull-right-container'><i class='fa fa-angle-left pull-right'></i>              </span>          </a>  <ul class='treeview-menu' style='display:block'>              <li><a href = '/CamInfo/1113' ><i  class='mnu_child fa fa-camera'></i> Thông tin Camera</a></li>             <li><a href = '/ServerInfo/1083' ><i  class='mnu_child fa fa-laptop'></i> Thông tin máy chủ</a></li>             <li><a href = '/ServerDataInfo/1114' ><i  class='mnu_child fa fa-database'></i> Thông tin máy chủ lưu trữ</a></li>             <li><a href = '/ClientInfo/1118' ><i  class='mnu_child glyphicon glyphicon-blackboard'></i> Thông tin máy client</a></li>             <li><a href = '/Socketfeedback/1115' ><i  class='mnu_child fa fa-code-fork'></i> Thông tin Socket feedback</a></li>             <li><a href = '/Socketdata/1116' ><i  class='mnu_child fa fa-asl-interpreting'></i> Thông tin Socket data interface</a></li>             <li><a href = '/DeviceConfig/1117' ><i  class='mnu_child fa fa-asl-interpreting'></i> Device config</a></li>             <li><a href = '/AIconfig/1082' ><i  class='mnu_child fa fa-user-times'></i> AI config</a></li>  </ul><li class='treeview menu-open'>          <a href = '/SubMenus/' >              <i class='mnu_parent fa fa-clone'></i> <span> Quản trị danh mục</span>              <span class='pull-right-container'>                  <i class='fa fa-angle-left pull-right'></i>              </span>          </a>  <ul class='treeview-menu' style='display:block'>              <li><a href = '/ChucVu/1112' ><i  class='mnu_child fa fa-sliders'></i> Danh mục cấp bậc</a></li>             <li><a href = '/PhongBan/1064' ><i  class='mnu_child glyphicon glyphicon-home'></i> Danh sách đơn vị</a></li>  </ul><li class='treeview menu-open'>          <a href = '/SubMenus/' >              <i class='mnu_parent '></i> <span> Quản lý phương tiện</span>              <span class='pull-right-container'>                  <i class='fa fa-angle-left pull-right'></i>              </span>          </a>  <ul class='treeview-menu' style='display:block'>              <li><a href = '/VehicleType/1120' ><i  class='mnu_child fa fa-automobile'></i> Loại phương tiện</a></li>             <li><a href = '/Vehicle/1121' ><i  class='mnu_child fa fa-automobile'></i> Danh mục phương tiện</a></li>  </ul><li class='treeview menu-open'>          <a href = '/SubMenus/' >              <i class='mnu_parent fa fa-mortar-board'></i> <span> Nghiệp vụ</span>              <span class='pull-right-container'>                  <i class='fa fa-angle-left pull-right'></i>              </span>          </a>  <ul class='treeview-menu' style='display:block'>              <li><a href = '/ClientCam/1098' ><i  class='mnu_child fa fa-id-card'></i> Phân quyền sử dụng Camera</a></li>             <li><a href = '/BlacklistObjectFaceInfo/1099' ><i  class='mnu_child fa fa-book'></i> Black list Object Face Info</a></li>  </ul><li class='treeview menu-open'>          <a href = '/SubMenus/System' >              <i class='mnu_parent fa fa-gears'></i> <span> Hệ thống</span>              <span class='pull-right-container'>                  <i class='fa fa-angle-left pull-right'></i>              </span>          </a>  <ul class='treeview-menu' style='display:block'>              <li><a href = '/Menu/31' ><i  class='mnu_child fa fa-book'></i> Menu</a></li>             <li><a href = '/Users/2' ><i  class='mnu_child fa fa-user'></i> Users management</a></li>             <li><a href = '/PermissionGroups/38' ><i  class='mnu_child fa fa-users'></i> Group users</a></li>             <li><a href = '/Logout/4' ><i  class='mnu_child fa fa-power-off'></i> Logout</a></li>             <li><a href = '/Log/27' ><i  class='mnu_child fa fa-history'></i> History</a></li>  </ul></li>}";
+            HtmlString menu = new HtmlString(s);
+            return menu;
+
+        }
+    }
+}
+----------------------------------------------------------
+10. Xây dựng chương trình cho phép hiển thị, thêm, sửa, xóa dữ liệu trong BD
+
+10.1. Thêm một folder trong Views là VehicleType => Tạo trang index trong folder này
+
+@{
+    ViewBag.Title = "View";
+    Layout = "~/Views/Shared/main_layout.cshtml";
+}
+ 
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title></title>
+          
+</head>
+<body>
+    <div class="box" style="margin-top: 1px; margin-left:1px;" id="divcontent">
+        <div class="box-header">
+            <label id="lbcontent_title" style="display:none;">@(ViewBag.Function_Title)</label>
+            <a id="cmdadd_cate" class="btn bg-green btn-flat " data-toggle="modal" data-target="#dlg@(ViewBag.tblname)"> <i class="fa fa-plus"></i> &nbsp;Thêm </a>
+            <a id="cmddelete_cate" class="btn bg-red btn-flat ">      <i class="fa fa-remove"></i> &nbsp;Xóa </a>
+            
+
+        </div>
+
+        <div class="box-body">
+            <div id="grid_noidung"></div>
+
+        </div>
+    </div>
+
+    <form id="frm@(ViewBag.tblname)">
+        <div class="modal fade" id="dlg@(ViewBag.tblname)" data-backdrop="static" data-keyboard="false" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                        <h3 class="modal-title">Danh mục loại phương tiện</h3>
+                    </div>
+                    <div id="lbthongbao" style="color:red;padding:0px  10px;"></div>
+                    <div class="modal-body">
+                        <div class="box-body">
+
+
+                            <div class="form-group" style="padding-top:25px;">
+                                <label for="txtVehicleType_Code" class="col-sm-4 control-label">Mã loại phương tiện :</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="txtVehicleType_Code" placeholder="Mã loại phương tiện">
+                                </div>
+                            </div>
+                            <div class="form-group" style="padding-top:25px;">
+                                <label for="txtVehicleType_Name" class="col-sm-4 control-label">Tên loại phương tiện :</label>
+                                <div class="col-sm-8">
+                                    <input type="text" class="form-control" id="txtVehicleType_Name" placeholder="Tên loại phương tiện ">
+                                </div>
+                            </div>
+
+
+                            <div class="form-group" style="padding-top:25px;">
+                                <label for="ckstatus" class="col-sm-4 control-label">Trạng thái :</label>
+                                <div class="col-sm-8">
+                                    <input type="checkbox" id="ckstatus" />
+                                </div>
+                            </div>
+
+                            
+
+                        </div>
+                       
+                        <div class="modal-footer ">
+                            <button type="button" class="btn bg-red pull-right" data-dismiss="modal"><i class="fa fa-close"></i>  Đóng</button>
+                            <button type="button" class="btn bg-green pull-left" id="cmdsave_cate"><i class="fa fa-save"></i>&nbsp; Lưu</button>
+                        </div>
+                    </div>
+                    <!-- /.modal-content -->
+                </div>
+                <!-- /.modal-dialog -->
+            </div>
+        </div>
+        <!-- /.modal -->
+    </form>
+
+  
+
+    <style type="text/css">
+        .btn_edit {
+        }
+
+    </style>
+ 
+
+  
+
+ <script>
+        bLoadDataCommon = false;
+        js_mn_tt = "@ViewBag.mn_tt";
+        function InitDefault() {
+            iPrintColStart = 3; // cot bat dau in cua kendouigrid
+            iPrintColNumbers = 3; // so cot in
+
+            columnsWidth = [{ sWidth: '5%' }, { sWidth: '10%' }, { sWidth: '20%' }, { sWidth: '15%' }, { sWidth: '15%' }, { sWidth: '15%' }, { sWidth: '15%' }, { sWidth: '5%' }];
+            columnAutoWidth = false;
+            bLoadDataCommon = false;
+            title = '@Html.Raw(ViewBag.Function_Title)';
+            document.title = 'Loại phương tiện - Information';
+            exportFileName = '@ViewBag.ControllerName';
+
+            myVersion = 2;
+            jsonData = []; // chua du lieu can bind ra bang
+            urlobj;
+            bAddEdit = true; // true: add, false: edit
+            controllerURL = '/VehicleType';
+            tblData = '@ViewBag.tblname'; // tên bảng show dữ liệu
+            dlgAddEdit = 'dlg@(ViewBag.tblname)'; // dialog chữa form edit
+            TienTo = ''; // tên trường tiền tố của 1 bảng
+            
+            _row = {
+                id: ""
+                , VehicleType_Code: ""
+                , VehicleType_Name: ""
+                         
+                , active: ""
+               
+            };
+        }
+
+        function InitDefaultValue() {
+            
+        }
+        function disableHideObjects() {
+            $('#txtuid').attr('disabled', true);
+        }
+
+        function resetAddItem() {
+            $('#cbbnhomquyen').val([]);
+            $("#cbbnhomquyen").trigger("change");
+
+            $('#' + dlgAddEdit + ' input').val('');
+            $('#' + dlgAddEdit + ' textarea').val('');
+            $('#' + dlgAddEdit + ' input').attr('disabled', false);
+        }
+        function _getGroupName(obj) {
+            var s = '';
+            for (i = 0; i < obj.length; i++) {
+                s += '<span class="groupname" >' + obj[i] + '</span>';
+            }
+            return s;
+        }
+        // load du lieu ra form de sua
+        function _editItem(obj, rowindex) {
+            $('#lbthongbao').html('');
+       
+            bAddEdit = false;
+            // var row = jsonData[rowindex];
+            var row = grid.dataItem("tbody tr:eq(" + (rowindex - 1) + ")"); //get data
+            bAddEdit = false;
+            _EDIT_INDEX = rowindex - 1;
+            _EDIT_ID = row.id;
+            $('#txtVehicleType_Code').val(row.VehicleType_Code);
+            $('#txtVehicleType_Name').val(row.VehicleType_Name);
+           
+            
+            $('#ckstatus').prop('checked', (row.active / 1 == 1 ? true : false));
+
+           
+        }
+
+        function IsValid() {
+
+            msg = "";
+            _row.id = _EDIT_ID;
+            _row.VehicleType_Code = $('#txtVehicleType_Code').val();
+           
+            _row.VehicleType_Name = $('#txtVehicleType_Name').val();
+            
+            _row.active = ($("#ckstatus").is(':checked') ? 1 : 0);
+            
+            msg = '';
+            if (bAddEdit) {
+                //if (_row.pwd == '') msg += '\n- Cần vào Mật khẩu;';
+                //if (_row.pwd1 == '') msg += '\n- Cần vào Mật khẩu xác nhận;';
+            }
+
+            if (msg != '') {
+                $('#lbthongbao').html('Error: ' + msg);
+                return false;
+            }
+
+
+            return true;
+        }
+
+     $(document).ready(function () {
+
+         
+            InitDefault();
+            InitDefaultValue();             
+         
+        //_showGrid();
+
+        $('#frmuser').validator().on('submit', function (e) {
+            if (e.isDefaultPrevented()) {
+            } else {
+                // everything looks good!
+
+                return false;
+            }
+        })
+
+    });
+ 
+  function _showGrid() {
+
+
+            var crudServiceBaseUrl = "/VehicleType";
+            
+        $("#grid_noidung").kendoGrid({
+            dataSource: {
+                transport: {
+                    read: {
+                       
+                        url: crudServiceBaseUrl + "/GetList",
+                        dataType: "json"
+                    }
+                },
+
+                //data: data,
+                schema: {
+                    parse : function(data) {
+                            console.log(data);
+                        
+                                return data.data;
+                        }
+                },
+                pageSize: 20, 
+            },
+            filterable: {
+               // mode:"row",
+                extra: false,
+                operators: {
+                    string: {
+                        contains: "Contains...",
+                        startswith: "Starts with",
+                        eq: "Is equal to"
+                        //, neq: "Is not equal to"
+                    }
+                }
+            },
+
+            // height: 500,
+            //toolbar: ["excel"],
+            scrollable: false,
+            sortable: { mode: "multiple", allowUnsort: true },
+            pageable: { input: false, numeric: true },
+            reorderable: true,
+            resizable: true,
+            groupable: false,
+            allowCopy: true,
+            selectable: "multiple cell",
+            
+
+            columns: [
+                {field: "id", title: "No.", template: "#= ++recordnumber#", filterable: false   , sortable: false},
+                {
+                    title: "<input type=checkbox id='ckcheckall' onclick='_checkAll();'>"
+                    , template: "<input type=checkbox value='#=id#'>"               , filterable: false , sortable: false
+                }, {
+                    title: ""
+                    , template: "<a href='javascript://' class='bg-green' title='Thông tin chi tiết => Sửa'  style='padding:5px;' onclick=' _editItem(\"#=id#\",\"#= recordnumber #\")'  data-toggle='modal' data-target='\\#dlg@(ViewBag.tblname)'><i class='fa fa-edit'></a>"
+                    , filterable: false  , sortable: false
+                },
+                    { field: "VehicleType_Code", title: "Mã loại phương tiện", filterable: { cell: { operator: "contains" } } },
+                    { field: "VehicleType_Name", title: "Tên loại phương tiện", filterable: { cell: { operator: "contains" } } },
+                    
+                    { template: "# if (active == '1') {#Active#} else {#Deactive#}#", title: "Trạng thái", filterable: { cell: { operator: "contains" } } },
+                   // { field: "active", title: "Status" }
+             
+       ],
+            dataBound: function (e) {
+                recordnumber = 0;
+                for (var i = 0; i < this.columns.length; i++) this.autoFitColumn(i);
+            }
+        }) ;
+        
+         grid = $("#grid_noidung").data("kendoGrid");
+    }
+ 
+ function _gridUpdateItem() {
+       
+     
+
+        var grid = $("#grid_noidung").data("kendoGrid");
+        var dataSource = grid.dataSource;
+        var dataItem = grid.dataItem("tbody tr:eq(" + _EDIT_INDEX + ")"); //get data
+            dataItem["VehicleType_Code"] = _row.VehicleType_Code;
+            dataItem["VehicleType_Name"] = _row.VehicleType_Name;
+                      
+            dataItem["active"] = _row.active;
+     
+        grid.refresh();
+    }
+    //-------------end edit a record 
+//==================================================================================================
+       
+        
+ </script>
+
+<style type="text/css">
+        .k-pdf-export .k-clone,
+        .k-pdf-export .k-loader-container {
+            display: none;
+        }
+        .customer-photo {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-size: 32px 35px;
+            background-position: center center;
+            vertical-align: middle;
+            line-height: 32px;
+            box-shadow: inset 0 0 1px #999, inset 0 0 10px rgba(0,0,0,.2);
+            margin-left: 5px;
+        }
+
+        .customer-name {
+            display: inline-block;
+            vertical-align: middle;
+            line-height: 32px;
+            padding-left: 3px;
+        }
+
+        .k-grid tr .checkbox-align {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .product-photo {
+            display: inline-block;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background-size: 32px 35px;
+            background-position: center center;
+            vertical-align: middle;
+            line-height: 32px;
+            box-shadow: inset 0 0 1px #999, inset 0 0 10px rgba(0,0,0,.2);
+            margin-right: 5px;
+        }
+
+        .product-name {
+            display: inline-block;
+            vertical-align: middle;
+            line-height: 32px;
+            padding-left: 3px;
+        }
+
+        .k-rating-container .k-rating-item {
+            padding: 4px 0;
+        }
+
+        .k-rating-container .k-rating-item .k-icon {
+            font-size: 16px;
+        }
+
+        .dropdown-country-wrap {
+            display: flex;
+            flex-wrap: nowrap;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        .dropdown-country-wrap img {
+            margin-right: 10px;
+        }
+
+        #grid .k-grid-edit-row > td > .k-rating {
+            margin-left: 0;
+            width: 100%;
+        }
+    </style>
+
+   
+
+
+</body>
+</html>
+
+------------------------------------------------------------------
+10.2. Thêm Controller và Model cho View này
+
+using Microsoft.AspNetCore.Mvc;
+using WEBCPA.Models;
+
+namespace WEBCPA.Controllers
+{
+    public class VehicleTypeController : Controller
+    {
+        public IActionResult Index()
+        {
+            return View();
+        }
+        [HttpGet("VehicleType/{id}")]
+        public IActionResult Index(int id)
+        {
+            ViewBag.UserMenu = Global.getMenu();
+            ViewBag.user_fullname = "Phan Thanh Toan";
+            ViewBag.userUid = "pttoan";
+            ViewBag.userAvata = "images/pttoan_2.jpg";
+            return View();
+        }
+    }
+}
+-----------------------------------------------------------------
+10.3. Thêm model
+using System.Data.SqlClient;
+using System.Data;
+using Newtonsoft.Json;
+
+namespace CPA.Models
+{
+    public class VehicleType
+    {                         
+    }
+}
+
+-----------------------------------------------------------
+10.4. Truy xuất dữ liệu từ DB đưa lên View
++ Tạo thư viện common trong model
+
+namespace CPA.Models
+{
+    public class jsonClientPost
+    {
+        public int code;
+        public string msg;
+        public dynamic data;
+        public string message;
+        public jsonClientPost()
+        {
+            data = new OneValue();
+            code = 100;
+            msg = "Done";
+        }
+    }
+    public class OneValue
+    {
+        public string key { get; set; }
+        public string value { get; set; }
+        public string code { get; set; }
+        public OneValue()
+        {
+            key = "";
+            value = "";
+            code = "";
+        }
+    }   
+}
+ 
+--------------------------------------------------------------
+10.5. Thêm các interface cho việc get xâu kết nối DB
+namespace CPA.Models
+{
+    public class DbRepository:IDbRepository
+    {
+        private string _connectionString;
+
+        public DbRepository(string connection)
+        {
+            _connectionString = connection;
+        }
+
+        public string GetConnectionString()
+        {
+            return _connectionString;
+        }
+    }
+}
+------------------
+namespace CPA.Models
+{
+    public interface IDbRepository
+    {
+        string GetConnectionString();
+    }
+}
+
+------------------------------------
+10.6. Chỉnh sửa file VehicleType.cs trong thư mục Models
+using System.Data.SqlClient;
+using System.Data;
+using Newtonsoft.Json;
+
+namespace CPA.Models
+{
+    public class VehicleType
+    {
+        string sql, strcnn;
+        public Guid userId;
+        public Guid languageId;
+        public string msg;
+        public int iRowEffected;
+        int pageSize;
+        string tblname = "tblVehicleType";
+        public string rc_id;
+        public static string mess = "";
+        public string Idlist { get; set; }
+
+
+        public VehicleType(string conn, Global _global)
+        {
+            sql = ""; msg = "";
+            strcnn = conn;
+        }
+
+        public string GetList(int pageCurrent)
+        {
+            int iTimeout = 1200000;
+            string sql = "exec sp_" + tblname + "_Get_List ";
+
+            DataSet dataSet = new DataSet();
+            SqlDataAdapter sqlDataAdapter = new SqlDataAdapter(sql, strcnn);
+            sqlDataAdapter.SelectCommand.CommandType = CommandType.Text;
+            sqlDataAdapter.SelectCommand.CommandTimeout = iTimeout;
+            DataTable dt;
+            try
+            {
+                sqlDataAdapter.Fill(dataSet, "tb1");
+                msg = "100";
+            }
+            catch (Exception ex)
+            {
+                Exception ex2 = ex;
+                dt = null;
+                msg = ex2.Message;
+            }
+            dt = dataSet.Tables["tb1"];
+            sqlDataAdapter.Dispose();
+            dataSet.Dispose();
+                       
+            if (msg != "100") return "";
+            if (dt.Rows.Count == 0) return "";
+            return JsonConvert.SerializeObject(dt);            
+        }
+    }
+}
+------------------------------------------------
+10.7. Chỉnh sửa Controller 
+
+using CPA.Models;
+using Microsoft.AspNetCore.Html;
+using Microsoft.AspNetCore.Mvc;
+
+namespace CPA.Controllers
+{
+   
+    public class VehicleTypeController : Controller
+    {
+        private readonly IDbRepository _dbrepository;
+
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ISession _session;
+        private readonly Global _globalPrarams;
+        private HtmlString menu;
+        public static string strcnn = "";
+        string msg = "";
+        jsonClientPost jc = new jsonClientPost();
+
+        public static VehicleType mdl;
+
+        public string tblname;
+
+        public VehicleTypeController(IHttpContextAccessor httpContextAccessor, IDbRepository dbrepository)
+        {
+            _httpContextAccessor = httpContextAccessor;
+            _session = _httpContextAccessor.HttpContext.Session;
+
+            _dbrepository = dbrepository;
+
+            jc = new jsonClientPost();
+            strcnn = _dbrepository.GetConnectionString();
+
+        }
+        
+        private void init()
+        {
+            strcnn = _dbrepository.GetConnectionString();
+            mdl = new VehicleType(strcnn, _globalPrarams);
+        }
+        public IActionResult Index()
+        {
+            init();
+            return View();
+        }
+
+        [HttpGet("VehicleType/{id}")]
+        public IActionResult Index(int id)
+        {
+            init();
+            ViewBag.mn_tt = id;
+            ViewBag.UserMenu = Global.getMenu();
+            ViewBag.user_fullname = "Phan Thanh Toan";
+            ViewBag.userUid = "pttoan";
+            ViewBag.userAvata = "images/pttoan_2.jpg";
+            return View();
+        }
+
+        [HttpGet("/VehicleType/GetList")]
+        public ActionResult GetList()
+        {
+            jc.data = mdl.GetList(0);
+            jc.msg = mdl.msg;
+            jc.code = (jc.msg == "100" ? 100 : 101);
+            string skq = "{\"code\":" + jc.code.ToString() + ",\"msg\":\"" + jc.msg.ToString() + "\", \"data\":" + (jc.data.ToString().Trim() == "" ? "[]" : jc.data.ToString()) + "}";
+            return Content(skq, "application/json");
+        }
+    }
+}
+--------------------------------------------------
+11. Tính năng cập nhật dữ liệu
+
+11.1. Viết các lệnh trên View bằng javascript để lấy dữ liệu trên View
+Thêm 3 hàm sau vào Controller (VehicleTypeController.cs)
+bool IsValid(ref dynamic data, bool bAdd = true)
+{
+    msg = "";
+    if (data.VehicleType_Code.ToString().Trim() == "") msg += "<br> - Chưa nhập mã loại phương tiện.";
+    if (data.VehicleType_Name.ToString().Trim() == "") msg += "<br> - Chưa nhập tên loại phương tiện.";
+    if (bAdd)
+    {
+
+    }
+    if (msg != "") return false;
+    return true;
+}
+[HttpPost]
+public ActionResult Insert(string data)
+{
+    dynamic row = Newtonsoft.Json.Linq.JObject.Parse(data);
+    row.id = Guid.NewGuid().ToString();
+    if(!IsValid(ref row))
+    {
+        jc.code = 101;
+        jc.msg = msg;
+        return Json(new { code = jc.code, msg = jc.msg });
+    }
+    mdl.Insert(row);
+    jc.code = (mdl.msg == "100" ? 100 : 101);
+    jc.msg = mdl.msg;            
+    jc.data.key = row.id.ToString();
+
+    return Json(new { code = jc.code, msg = jc.msg });
+}
+[HttpPost]
+public ActionResult Update(string data)
+{
+    dynamic row = Newtonsoft.Json.Linq.JObject.Parse(data);
+    if(!IsValid(ref row))
+    {
+        jc.code = 101;
+        jc.msg = msg;
+        return Json(new { code = jc.code, msg = jc.msg });
+    }
+    mdl.Update(row);
+    jc.code = (mdl.msg =="100"?100:101);
+    jc.msg = mdl.msg;
+    return Json(new {code = jc.code, msg = jc.msg});
+}
+ 
+11.2. Thêm các hàm sau vào model (VehicleType.cs)
+ public bool Insert(dynamic row)
+ {            
+     string id = Guid.NewGuid().ToString();
+     iRowEffected = 0;
+     cmd = new SqlCommand("sp_" + tblname + "_Insert", new SqlConnection(strcnn));
+     cmd.CommandType = CommandType.StoredProcedure;
+     cmd.Parameters.Add(new SqlParameter("@VehicleType_Id", id));
+     cmd.Parameters.Add(new SqlParameter("@VehicleType_Code", row.VehicleType_Code.ToString()));
+     cmd.Parameters.Add(new SqlParameter("@VehicleType_Name", row.VehicleType_Name.ToString()));
+     cmd.Parameters.Add(new SqlParameter("@VehicleType_Status", row.active.ToString()));
+     cmd.Parameters.Add(new SqlParameter("@VehicleType_CreatedById", userId));
+     try
+     {
+         cmd.Connection.Open();
+         iRowEffected = cmd.ExecuteNonQuery();
+         cmd.Connection.Close();
+         cmd.Connection.Dispose();
+         cmd.Dispose();
+         msg = "100";
+     }
+     catch (Exception e1)
+     {
+         msg = e1.Message;
+         return false;
+     }
+     return (msg == "100" ? true : false);
+ }
+
+  
