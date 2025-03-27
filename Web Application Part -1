@@ -1,11 +1,8 @@
 1> Tạo một ứng dụng web
 ASP.NET Core Web App(Model-View-Controller)
-
 2. Tạo 3 thư mục là: Views, Controllers, Models
 3. Copy tất cả các thư viện vào thư mục wwwroot
-4. Chỉnh sửa tệp Program.cs
-
- 
+4. Chỉnh sửa tệp Program.cs 
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
@@ -20,21 +17,15 @@ namespace DeviceManagement
 {
     public class Program
     {
-
         public static void Main(string[] args)
         {
             var builder = new ConfigurationBuilder().SetBasePath(Directory.GetCurrentDirectory())
             .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
             IConfiguration cf = builder.Build();
-
             // Info.strcnn = cf.GetValue<string>("ConnectionStrings:cnn");
-
-
-
             CreateHostBuilder(args).Build().Run();
 
         }
-
         public static IHostBuilder CreateHostBuilder(string[] args) =>
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
@@ -43,7 +34,6 @@ namespace DeviceManagement
                 });
     }
 }
-
 -------------------------------------------
 5. Thêm tệp tin Startup.cs
 using Microsoft.AspNetCore.Builder;
@@ -59,13 +49,10 @@ using System.Threading.Tasks;
 using WEBCPA.Models;
 using Microsoft.AspNetCore.StaticFiles;
  
- 
-
 namespace DeviceManagement
 {
     public class Startup
     {
-       
         public Startup(IConfiguration configuration, IHostEnvironment env)
         {
             Configuration = configuration;
@@ -75,11 +62,8 @@ namespace DeviceManagement
                 .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
                 .AddEnvironmentVariables();
             Configuration = builder.Build();
-
         }
-
         public IConfiguration Configuration { get; }
-
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
@@ -91,22 +75,11 @@ namespace DeviceManagement
             services.AddSession();
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
-            string connectionString = Configuration["ConnectionStrings:cnn"];
-            //  this is how a class inheriting dbcontext can be called
-            //  services.AddDbContext<DbRepository>(options => options.UseSqlServer(connectionString));
-            //  or call IDbRepository as a custom service
-            //services.AddScoped<IDbRepository>(repository => new DbRepository(connectionString));
-
+            string connectionString = Configuration["ConnectionStrings:cnn"];            
             services.AddScoped<IDbRepository>(repository => new DbRepository(connectionString));
-
             services.AddOptions();
-            services.Configure<Global>(Configuration);
-
-            
-
-
+            services.Configure<Global>(Configuration);           
         }
-
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
@@ -123,49 +96,30 @@ namespace DeviceManagement
             //app.UseDetection();
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
-            app.UseStatusCodePages();
-            
-
-            app.UseRouting();
-            
-           
-
+            app.UseStatusCodePages();            
+            app.UseRouting();                       
             app.UseAuthorization();
             app.UseSession();
-
-            var provider = new FileExtensionContentTypeProvider();
-            
-
+            var provider = new FileExtensionContentTypeProvider();            
             app.UseEndpoints(endpoints =>
-            {
-                               
+            {                               
                 endpoints.MapAreaControllerRoute(
                    name: "WEBCPA",
                    areaName: "WEBCPA",
                    pattern: "{controller=HomeAdmin}/{action=Index}");
 
                 /*
-
                  endpoints.MapControllerRoute(
                      name: "areaRoute",
                      pattern: "{area:exists}/{controller}/{action}/{id?}"
-                 );  */
-
-                
-             
+                 );  */                             
                 endpoints.MapControllerRoute(
                     name: "default",
                     pattern: "{controller=Home}/{action=Index}/{id?}"); 
                  
-            });
-
-           
+            });           
             AppDomain.CurrentDomain.SetData("ContentRootPath", env.ContentRootPath); 
-            AppDomain.CurrentDomain.SetData("WebRootPath", env.WebRootPath);
-
-            
-
+            AppDomain.CurrentDomain.SetData("WebRootPath", env.WebRootPath);            
         }
     }
 }
@@ -173,24 +127,16 @@ namespace DeviceManagement
 --------------------------------------------------------------------------------
 6. Trong thư mục Views/Share thêm tệp tin main_layout
 
-
 @using Microsoft.AspNetCore.Html
 
 @{
-
     var path = (string)AppDomain.CurrentDomain.GetData("WebRootPath");
-
     HtmlString menu = (HtmlString)ViewBag.UserMenu;// Info.menu;
     string user_fullname = ViewBag.user_fullname;
     string userUid = ViewBag.userUid;
     string userAvata = ViewBag.userAvata;
- 
-
-    string common_script_path = path + "\\Scripts\\common.js";
-    
-    string script = File.ReadAllText(common_script_path);
-    
-    
+    string common_script_path = path + "\\Scripts\\common.js";    
+    string script = File.ReadAllText(common_script_path);    
 }
 
 <!DOCTYPE html>
@@ -1191,4 +1137,6 @@ public ActionResult Update(string data)
      return (msg == "100" ? true : false);
  }
 
-  
+
+
+
