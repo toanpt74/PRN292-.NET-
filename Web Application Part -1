@@ -1111,7 +1111,7 @@ public ActionResult Update(string data)
 11.2. Thêm các hàm sau vào model (VehicleType.cs)
  public bool Update(dynamic row)
  {
-      
+     
      try
      {
          cmd.Connection.Open();
