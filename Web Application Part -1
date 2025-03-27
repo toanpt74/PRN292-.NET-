@@ -1109,7 +1109,13 @@ public ActionResult Update(string data)
 }
  
 11.2. Thêm các hàm sau vào model (VehicleType.cs)
- public bool Insert(dynamic row)
+ public bool Update(dynamic row)
+ {
+     
+ }
+
+  
+public bool Insert(dynamic row)
  {            
      string id = Guid.NewGuid().ToString();
      iRowEffected = 0;
